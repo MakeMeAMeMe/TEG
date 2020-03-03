@@ -15,18 +15,18 @@ using namespace std;
  * */
 
 size_t get_line_degree(size_t **graph, int line) {
-    size_t sum;
+    size_t sum, j;
     sum = 0;
-    for (size_t j = 0; j < MATRIX_SIZE; j++) {
+    for (j = 0; j < MATRIX_SIZE; j++) {
         sum += graph[line][j];
     }
     return sum;
 }
 
 bool ensure_regular_graph(size_t **graph) {
-    size_t aux, degree;
+    size_t aux, degree, i;
     degree = get_line_degree(graph, 0);
-    for (size_t i = 1; i < MATRIX_SIZE; i++) {
+    for (i = 1; i < MATRIX_SIZE; i++) {
         if (get_line_degree(graph, i) != degree) {
             return false;
         }
