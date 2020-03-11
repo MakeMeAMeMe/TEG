@@ -7,17 +7,16 @@ typedef struct Nodo Nodo;
 typedef struct Lista Lista;
 typedef struct Graph Graph;
 
-
-struct Nodo{
+struct Nodo {
     int vertice;
     Nodo *proximo;
 };
 
-struct Lista{
+struct Lista {
     Nodo *head;
 };
 
-struct Graph{
+struct Graph {
     int num_vertices;
     Lista **lista_vertices;
 };
@@ -30,9 +29,7 @@ void print_matriz(size_t **);
 void get_matriz(size_t ***);
 void make_graph(Graph *, size_t **);
 void print_graph(Graph *);
-void add_nodo(Lista *, int );
+void add_nodo(Lista *, int);
 void alloc_vertices(Graph *);
-
-
 
 #endif
