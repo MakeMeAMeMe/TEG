@@ -17,15 +17,15 @@ int main(void) {
 
 void count_matrix_size() {
     int count = 0;
-    FILE *file = fopen("grafo.txt", "r");
-    char *p = malloc(1 * sizeof(char *));
-    while(1){
+    FILE *file = fopen("data/grafo_2.txt", "r");
+    char *p = malloc(sizeof(char *));
+    while (1) {
         fscanf(file, "%c", p);
-        if(*p == '\n'){
+        if (*p == '\n') {
             break;
-        }else if(*p == ' '){
+        } else if (*p == ' ') {
             continue;
-        }else{
+        } else {
             count++;
         }
     }
@@ -34,109 +34,87 @@ void count_matrix_size() {
 }
 
 void init_matriz(size_t ***matriz) {
-    (*matriz) = calloc(TAM_MATRIZ , sizeof(size_t *));
+    (*matriz) = calloc(TAM_MATRIZ, sizeof(size_t *));
 
-    for (size_t i = 0; i < TAM_MATRIZ ; i++)
-    {
-        (*matriz)[i] = calloc(TAM_MATRIZ , sizeof(size_t));
+    for (size_t i = 0; i < TAM_MATRIZ; i++) {
+        (*matriz)[i] = calloc(TAM_MATRIZ, sizeof(size_t));
     }
 }
 
-void get_matriz(size_t ***matriz){
-    FILE *file = fopen("grafo.txt", "r");
+void get_matriz(size_t ***matriz) {
+    FILE *file = fopen("data/grafo_2.txt", "r");
     char *p = malloc(1 * sizeof(char *));
-    for (size_t i = 0; i < TAM_MATRIZ ; i++)
-    {
-        for (size_t j = 0; j < TAM_MATRIZ ; j++)
-        {
+    for (size_t i = 0; i < TAM_MATRIZ; i++) {
+        for (size_t j = 0; j < TAM_MATRIZ; j++) {
             fscanf(file, "%c", p);
-            if(*p == ' ' || *p == '\n'){
+            if (*p == ' ' || *p == '\n') {
                 j--;
                 continue;
             }
             (*matriz)[i][j] = (size_t)*p - 48;
         }
     }
-
 }
 
-void print_matriz(size_t **matriz){
-
-    for (size_t i = 0; i < TAM_MATRIZ ; i++)
-    {
-        for (size_t j = 0; j < TAM_MATRIZ ; j++)
-        {
+void print_matriz(size_t **matriz) {
+    for (size_t i = 0; i < TAM_MATRIZ; i++) {
+        for (size_t j = 0; j < TAM_MATRIZ; j++) {
             printf("%lu ", matriz[i][j]);
         }
 
         printf("\n");
-        
     }
-    
-
 }
 
-void make_graph(Graph *grafo, size_t **matriz){
+void make_graph(Graph *grafo, size_t **matriz) {
     alloc_vertices(grafo);
 
-    for (size_t i = 0; i < TAM_MATRIZ; i++)
-    {
-        for (size_t j = 0; j < TAM_MATRIZ; j++)
-        {
-            if(matriz[i][j] == 1){
+    for (size_t i = 0; i < TAM_MATRIZ; i++) {
+        for (size_t j = 0; j < TAM_MATRIZ; j++) {
+            if (matriz[i][j] == 1) {
                 add_nodo((grafo->lista_vertices)[i], j);
             }
         }
-        
     }
 }
 
-void alloc_vertices(Graph *grafo){
+void alloc_vertices(Graph *grafo) {
     grafo->num_vertices = TAM_MATRIZ;
     grafo->lista_vertices = malloc(grafo->num_vertices * sizeof(Lista *));
 
-    for (size_t i = 0; i < grafo->num_vertices; i++)
-    {
+    for (size_t i = 0; i < grafo->num_vertices; i++) {
         (grafo->lista_vertices)[i] = malloc(sizeof(Lista));
         (grafo->lista_vertices)[i]->head = NULL;
     }
-    
 }
 
-void add_nodo(Lista *lista, int vertice){
+void add_nodo(Lista *lista, int vertice) {
     Nodo *nodo = malloc(sizeof(Nodo));
     nodo->proximo = NULL;
     nodo->vertice = vertice;
-    if(lista->head == NULL){
+    if (lista->head == NULL) {
         lista->head = nodo;
 
-    }
-    else{
+    } else {
         Nodo *aux;
         aux = lista->head;
-        while (aux->proximo != NULL)
-        {
+        while (aux->proximo != NULL) {
             aux = aux->proximo;
         }
         aux->proximo = nodo;
-        
     }
-}   
+}
 
-void print_graph(Graph *grafo){
+void print_graph(Graph *grafo) {
     Nodo *aux;
 
-    for (size_t i = 0; i < grafo->num_vertices; i++)
-    {
+    for (size_t i = 0; i < grafo->num_vertices; i++) {
         aux = (grafo->lista_vertices)[i]->head;
         printf("\n| %lu |", i);
-        for (size_t j = 0; aux != NULL ; j++)
-        {
+        for (size_t j = 0; aux != NULL; j++) {
             printf(" -> | %d |", aux->vertice);
             aux = aux->proximo;
         }
-        
     }
-        printf("\n");
-    
+    printf("\n");
 }
