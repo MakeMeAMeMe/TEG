@@ -65,15 +65,30 @@ def delete_vert(matrix, vert):
                 if j != vert:
                     new_matrix[i].append(matrix[i][j])
 
+def matrix_adj_compl_graph(matrix):
+    ...
+    compl_matrix = list()
+    for i in range(len(matrix)):
+        compl_matrix.append(list())
+        for j in range(len(matrix)):
+            if matrix[i][j] == 0:
+                compl_matrix[i].append(1)
+            elif matrix[i][j]:
+                compl_matrix[i].append(0)
+    
+    return compl_matrix
+
 #matrix = create_matrix_adj()
 #create_matrix_inc()
 #pprint(calc_degree_vt_adj(matrix, 5))
 
-
 pprint("Matriz não direncionada")
 matrix = create_matrix_adj("data/grafo_3.txt")
 insert_vert(matrix)
+compl = matrix_adj_compl_graph(matrix)
 pprint(matrix)
+pprint(compl)
+
 #for i in range(len(matrix)):
 #    pprint(calc_degree_vt_adj(matrix,i,False))
 ##
