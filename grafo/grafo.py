@@ -5,12 +5,12 @@ from pprint import pprint
 
 class Graph:
     def __init__(self):
-        self.vertices = {}
+        self.vertices = []
         self.arestas = []
 
     def add_vertice(self, vertice: Hashable):
-        if vertice not in self.vertices.keys():
-            self.vertices.update({vertice: len(self.vertices.keys())})
+        if vertice not in self.vertices:
+            self.vertices.append(vertice)
 
     # Match para aresta já existente
     def add_aresta(self, aresta: Union[Tuple[Hashable, Hashable], Tuple[Hashable, Hashable, int]]):
@@ -18,7 +18,7 @@ class Graph:
             aresta = (*aresta, 1)
         self.add_vertice(aresta[0])
         self.add_vertice(aresta[1])
-        aresta = (self.vertices[aresta[0]], self.vertices[aresta[1]], aresta[2])
+        aresta = (self.get_inner_vertice(aresta[0]), self.get_inner_vertice(aresta[1]), aresta[2])
         self.arestas.append(aresta)
 
     def _organize_data(self):
@@ -50,12 +50,17 @@ class Graph:
         return matrix
 
     def get_origin_vertice(self, inner_vertice: int):
-        return list(self.vertices.keys())[inner_vertice]
+        return self.vertices[inner_vertice]
+
+    def get_inner_vertice(self, outter_vertice):
+        for index, vertice in enumerate(self.vertices):
+            if outter_vertice == vertice:
+                return index
 
     def get_arestas_vertice(
             self, vertice: Hashable, mode: str = "origin", vertice_mode: str = "origin"):
         if vertice_mode.lower() == "origin":
-            vertice = self.vertices[vertice]
+            vertice = self.get_inner_vertice(vertice)
         arestas = list()
         for aresta in self.arestas:
             if vertice in aresta[:1]:
@@ -69,8 +74,6 @@ class Graph:
     def get_vertice_degree(self, vertice: Hashable, mode: str = "full", weight: bool = False):
         degree = 0
         if mode.lower() == "full":
-            if weight:
-                return sum([aresta[2] for aresta in self.get_arestas_vertice(vertice)])
             return len(self.get_arestas_vertice(vertice))
         elif mode.lower() == "out":
             for aresta in self.get_arestas_vertice(vertice, mode="origin"):
@@ -93,13 +96,15 @@ class Graph:
         self.arestas = arestas
 
     def remove_vertice(self, vertice: Hashable):
-        if vertice not in self.vertices.keys():
+        if vertice not in self.vertices:
             return
-        vertice_inner = self.vertices[vertice]
-        del self.vertices[vertice]
+        vertice_inner = self.get_inner_vertice(vertice)
+        del self.vertices[vertice_inner]
         for aresta in self.get_arestas_vertice(vertice_inner, mode="inner", vertice_mode="inner"):
             self.arestas.remove(aresta)
-        for index, value in enumerate(self.vertices.keys()):
+        for i in range(vertice_inner+1, len(self.vertices) + 1):
+            self._update_arestas(i, i-1)
+        for index, value in enumerate(self.vertices):
             if index != self.vertices[value]:
                 self._update_arestas(self.vertices[value], index)
                 self.vertices[value] = index
