@@ -30,7 +30,9 @@ class Graph {
     void generate_edges();
     void add_edge(Node*, Node*, double);
     void add_edge(Edge);
-    void dfs();
+    int get_node_index(Node*);
+    void dfs(Graph*);
+    void bfs(Graph*);
 
    private:
     std::vector<Node> nodes;

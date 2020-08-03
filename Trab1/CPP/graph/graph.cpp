@@ -8,7 +8,14 @@
 // Graph
 
 void Graph::add_node(Node node) {
-    node.set_index(this->nodes.size());
+    if (node.get_id() != -1) {
+        for (size_t i = 0; i < this->nodes.size(); i++) {
+            if (this->nodes[i].get_id() == node.get_id()) {
+                return;
+            }
+        }
+    }
+    node.set_id(this->nodes.size());
     this->nodes.push_back(node);
 }
 
@@ -48,6 +55,7 @@ void Graph::generate_edges() {
                             // Upd this position to have the new coord
                             neighbors[k].distance = distance;
                             neighbors[k].node = &(this->nodes[j]);
+                            break;
                         }
                     }
                     // Upd biggest distance
@@ -75,13 +83,34 @@ void Graph::print_edges() {
 
 void Graph::add_edge(Edge edge) {
     // TODO: Check if origin and destiny in nodes
-    this->edges.push_back(edge);
+    bool origin, destiny;
+    origin = false;
+    destiny = false;
+    for (size_t i = 0; i < this->nodes.size(); i++) {
+        if (this->nodes[i].get_id() == edge.get_origin()->get_id()) {
+            origin = true;
+        } else if (this->nodes[i].get_id() == edge.get_destiny()->get_id()) {
+            destiny = true;
+        }
+        if (origin && destiny) {
+            this->edges.push_back(edge);
+            break;
+        }
+    }
 }
 
-void Graph::dfs() {
+int Graph::get_node_index(Node* node) {
+    for (size_t i = 0; i < this->nodes.size(); i++) {
+        if (this->nodes[i].get_id() == node->get_id()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void Graph::dfs(Graph* dfs_graph) {
     size_t t;
     t = 0;
-    Graph dfs_graph;
     std::vector<size_t> input_depth(this->nodes.size());
     std::vector<size_t> output_depth(this->nodes.size());
     // Set root for search
@@ -90,34 +119,33 @@ void Graph::dfs() {
     Node* root;
     root = &(this->nodes[root_index]);
     // Exec search
-    _dfs(root, &t, &input_depth, &output_depth, &dfs_graph);
+    _dfs(root, &t, &input_depth, &output_depth, dfs_graph);
 }
 
 void Graph::_dfs(Node* node, size_t* t, std::vector<size_t>* input_depth, std::vector<size_t>* output_depth, Graph* dfs_graph) {
-    std::cout << "Nodo: " << node->get_index() << std::endl;
     *t += 1;
     size_t node_index, neighbor_index;
-    node_index = node->get_index();
+    node_index = node->get_id();
     (*input_depth)[node_index] = *t;
     coord origin, destiny;
     Node* neighbor = nullptr;
     // TODO: Add Node to graph, prob add id to node for later comparisson
-    //dfs_graph->add_node(node);
+    Node dfs_node{*node};
+    dfs_graph->add_node(dfs_node);
     for (size_t i = 0; i < this->edges.size(); i++) {
-        if (this->edges[i].get_origin() == node) {
+        if (this->edges[i].get_origin()->get_id() == node->get_id()) {
             neighbor = this->edges[i].get_destiny();
-        } else if (this->edges[i].get_destiny() == node) {
+        } else if (this->edges[i].get_destiny()->get_id() == node->get_id()) {
             neighbor = this->edges[i].get_origin();
         } else {  // Não é vizinho
-            std::cout << "Não vizinho" << std::endl;
             continue;
         }
-        std::cout << "Vizinho: " << neighbor->get_index() << std::endl;
-        neighbor_index = neighbor->get_index();
+        Node dfs_neighbor{*neighbor};
+        dfs_graph->add_node(dfs_neighbor);
+        neighbor_index = neighbor->get_id();
         if ((*input_depth)[neighbor_index] == 0) {
-            origin = node->get_coord();
-            destiny = neighbor->get_coord();
-            Edge edge{node, neighbor, distance_coords(&(origin), &(destiny))};
+            std::cout << "BLUE Edge" << std::endl;
+            Edge edge{&dfs_node, &dfs_neighbor, distance_coords(&origin, &destiny)};
             edge.set_color(BLUE);
             dfs_graph->add_edge(edge);
 
@@ -126,16 +154,17 @@ void Graph::_dfs(Node* node, size_t* t, std::vector<size_t>* input_depth, std::v
             bool is_father;
             is_father = false;
             for (size_t j = 0; j < dfs_graph->edges.size(); j++) {
-                if (dfs_graph->edges[i].get_origin() == neighbor && dfs_graph->edges[i].get_destiny() == node) {
+                if (dfs_graph->edges[j].get_origin()->get_id() == dfs_neighbor.get_id() && dfs_graph->edges[j].get_destiny()->get_id() == dfs_neighbor.get_id()) {
                     is_father = true;
                     break;
                 }
             }
             if ((*output_depth)[neighbor_index] == 0 && !is_father) {
                 // Add a red edge from neighbor to node
+                std::cout << "RED Edge" << std::endl;
                 origin = node->get_coord();
                 destiny = neighbor->get_coord();
-                Edge edge{node, neighbor, distance_coords(&(origin), &(destiny))};
+                Edge edge{&dfs_neighbor, &dfs_node, distance_coords(&origin, &destiny)};
                 edge.set_color(RED);
                 dfs_graph->add_edge(edge);
             }
@@ -143,6 +172,18 @@ void Graph::_dfs(Node* node, size_t* t, std::vector<size_t>* input_depth, std::v
     }
     *t += 1;
     (*output_depth)[node_index] = *t;
+}
+
+void Graph::bfs(Graph* dfs_graph) {
+    size_t t;
+    t = 0;
+    std::vector<size_t> aux_q(this->nodes.size());
+    
+    // Set root for search
+    size_t root_index;
+    root_index = std::rand() % this->nodes.size();
+    Node* root;
+    root = &(this->nodes[root_index]);
 }
 
 // Util
