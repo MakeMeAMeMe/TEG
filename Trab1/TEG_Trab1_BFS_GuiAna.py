@@ -8,6 +8,7 @@ class Vertice:
         self.vizinhos = list()
         self.x = x
         self.y = y
+        
 
         self.nivel = 9999
         self.color = 'black'
