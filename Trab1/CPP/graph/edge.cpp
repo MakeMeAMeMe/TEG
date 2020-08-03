@@ -8,5 +8,5 @@ Edge::Edge(Node* origin, Node* destiny, double value) : origin{origin}, destiny{
 }
 
 void Edge::print_aresta(){
-    std::cout << "Origin: " << origin->get_id() << "\tDestiny: " << destiny->get_id() << "\tValue: " << value << std::endl;
+    std::cout << "Origin: " << origin->get_index() << "\tDestiny: " << destiny->get_index() << "\tValue: " << value << std::endl;
 }

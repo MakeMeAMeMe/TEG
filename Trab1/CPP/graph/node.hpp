@@ -10,13 +10,13 @@ class Node {
    public:
     Node(coord*);
     coord get_coord() { return this->coordinate; };
-    long int get_id() { return this->id; };
+    size_t get_index() { return this->index; };
     void print_coord();
-    void set_id(long int);
+    void set_index(size_t);
 
    private:
     coord coordinate;
-    long int id;
+    size_t index;
 };
 
 // Headers
