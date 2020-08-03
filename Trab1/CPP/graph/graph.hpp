@@ -31,7 +31,9 @@ class Graph {
     void generate_edges();
     void add_edge(Node*, Node*, double);
     void add_edge(Edge);
-    void dfs();
+    int get_node_index(Node*);
+    void dfs(Graph*);
+    void bfs(Graph*);
     std::pair <int, double> get_furthest(std::vector<node_distance>);
 
    private:
