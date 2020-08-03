@@ -103,7 +103,6 @@ int Graph::get_node_index(Node *node) {
 void Graph::dfs(Graph *dfs_graph) {
     size_t t;
     t = 0;
-    Graph dfs_graph;
     std::vector<size_t> input_depth(this->nodes.size());
     std::vector<size_t> output_depth(this->nodes.size());
     // Set root for search
@@ -166,7 +165,7 @@ void Graph::_dfs(Node *node, size_t *t, std::vector<size_t> *input_depth, std::v
     (*output_depth)[node_index] = *t;
 }
 
-void Graph::bfs(Graph *dfs_graph) {
+void Graph::bfs(Graph *bfs_graph) {
     size_t t;
     t = 0;
     std::vector<size_t> aux_q(this->nodes.size());

@@ -19,7 +19,7 @@ int main() {
     // Generate points
     for (size_t i = 0; i < N_GRAPHS; i++) {
         // Construct Graph
-        Graph graph;
+        Graph graph, dfs_graph;
         for (size_t j = 0; j < GRAPHS[i]; j++) {
             // Generate GRAPHS[i] coordinates
 
@@ -36,7 +36,7 @@ int main() {
         graph.generate_edges();
         graph.print_edges();
         // Run dfs
-        graph.dfs();
+        graph.dfs(&dfs_graph);
         // Print Results
     }
 

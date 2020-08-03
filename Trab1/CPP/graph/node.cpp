@@ -7,11 +7,11 @@
 // Node
 
 Node::Node(coord* coordinate) : coordinate{*coordinate} {
-    this->set_index(0L);
+    this->set_id(-1L);
 }
 
-void Node::set_index(size_t index){
-    this->index = index;
+void Node::set_id(long int id){
+    this->id = id;
 }
 
 void Node::print_coord() {
