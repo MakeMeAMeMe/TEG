@@ -8,8 +8,8 @@ typedef struct coord coord;
 // Structs & Classes
 
 struct coord {
-    double x;
-    double y;
+    float x;
+    float y;
 };
 
 double distance_coords(coord*, coord*);

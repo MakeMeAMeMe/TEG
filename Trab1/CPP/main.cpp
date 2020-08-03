@@ -8,10 +8,10 @@
 #include "graph/graph.hpp"
 
 // Defines
-constexpr unsigned short int N_GRAPHS = 4;
-// constexpr unsigned short int N_GRAPHS = 1;
+// constexpr unsigned short int N_GRAPHS = 4;
+constexpr unsigned short int N_GRAPHS = 1;
+//constexpr unsigned int GRAPHS[] = {50, 100, 200, 300};
 constexpr unsigned int GRAPHS[] = {5};
-// constexpr unsigned int GRAPHS[] = {50};
 
 int main() {
     // Seed Rand
@@ -19,14 +19,14 @@ int main() {
     // Generate points
     for (size_t i = 0; i < N_GRAPHS; i++) {
         // Construct Graph
-        Graph graph, dfs_graph, bfs_graph;
+        Graph graph;
         for (size_t j = 0; j < GRAPHS[i]; j++) {
             // Generate GRAPHS[i] coordinates
 
             coord coordinate;
 
-            coordinate.x = ((double)std::rand()) / RAND_MAX;
-            coordinate.y = ((double)std::rand()) / RAND_MAX;
+            coordinate.x = ((float)std::rand()) / RAND_MAX;
+            coordinate.y = ((float)std::rand()) / RAND_MAX;
 
             Node node{&coordinate};
 
@@ -36,7 +36,7 @@ int main() {
         graph.generate_edges();
         graph.print_edges();
         // Run dfs
-        graph.dfs(&dfs_graph);
+        graph.dfs();
         // Print Results
     }
 

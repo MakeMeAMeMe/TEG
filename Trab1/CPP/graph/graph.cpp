@@ -1,6 +1,7 @@
 // Global imports
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 // Local imports
 #include "graph.hpp"
@@ -62,7 +63,6 @@ void Graph::generate_edges()
                     furthest = get_furthest(neighbors);
                     if (furthest.second > distance)
                     { // Found a coord that is closer than one in the neighbors
-
                         neighbors[furthest.first].distance = distance;
                         neighbors[furthest.first].node = &(this->nodes[j]);
                     }
@@ -131,6 +131,7 @@ void Graph::dfs(Graph *dfs_graph)
 {
     size_t t;
     t = 0;
+    Graph dfs_graph;
     std::vector<size_t> input_depth(this->nodes.size());
     std::vector<size_t> output_depth(this->nodes.size());
     // Set root for search
@@ -139,14 +140,14 @@ void Graph::dfs(Graph *dfs_graph)
     Node *root;
     root = &(this->nodes[root_index]);
     // Exec search
-    _dfs(root, &t, &input_depth, &output_depth, dfs_graph);
+    _dfs(root, &t, &input_depth, &output_depth, &dfs_graph);
 }
 
 void Graph::_dfs(Node *node, size_t *t, std::vector<size_t> *input_depth, std::vector<size_t> *output_depth, Graph *dfs_graph)
 {
     *t += 1;
     size_t node_index, neighbor_index;
-    node_index = node->get_id();
+    node_index = node->get_index();
     (*input_depth)[node_index] = *t;
     coord origin, destiny;
     Node *neighbor = nullptr;
@@ -194,10 +195,9 @@ void Graph::_dfs(Node *node, size_t *t, std::vector<size_t> *input_depth, std::v
             if ((*output_depth)[neighbor_index] == 0 && !is_father)
             {
                 // Add a red edge from neighbor to node
-                std::cout << "RED Edge" << std::endl;
                 origin = node->get_coord();
                 destiny = neighbor->get_coord();
-                Edge edge{&dfs_neighbor, &dfs_node, distance_coords(&origin, &destiny)};
+                Edge edge{node, neighbor, distance_coords(&(origin), &(destiny))};
                 edge.set_color(RED);
                 dfs_graph->add_edge(edge);
             }
@@ -242,3 +242,4 @@ void loaded()
 {
     std::cout << "Graph loaded" << std::endl;
 }
+
