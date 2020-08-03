@@ -2,6 +2,7 @@
 
 // Global headers imports
 #include <vector>
+#include <utility>
 #include <cstdlib>
 
 // Local headers imports
@@ -33,6 +34,7 @@ class Graph {
     int get_node_index(Node*);
     void dfs(Graph*);
     void bfs(Graph*);
+    std::pair <int, double> get_furthest(std::vector<node_distance>);
 
    private:
     std::vector<Node> nodes;

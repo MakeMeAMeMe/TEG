@@ -10,7 +10,7 @@
 // Defines
 constexpr unsigned short int N_GRAPHS = 4;
 // constexpr unsigned short int N_GRAPHS = 1;
-constexpr unsigned int GRAPHS[] = {50, 100, 200, 300};
+constexpr unsigned int GRAPHS[] = {5};
 // constexpr unsigned int GRAPHS[] = {50};
 
 int main() {
