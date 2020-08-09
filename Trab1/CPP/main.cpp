@@ -19,7 +19,7 @@ int main() {
     // Generate points
     for (size_t i = 0; i < N_GRAPHS; i++) {
         // Construct Graph
-        Graph graph, dfs_graph;
+        Graph graph, dfs_graph, bfs_graph;
         for (size_t j = 0; j < GRAPHS[i]; j++) {
             // Generate GRAPHS[i] coordinates
 
@@ -36,8 +36,12 @@ int main() {
         graph.generate_edges();
         graph.print_edges();
         // Run dfs
-        graph.dfs(&dfs_graph);
+        // graph.dfs(&dfs_graph);
+        // Run bfs
+        graph.bfs(&bfs_graph);
         // Print Results
+        std::cout << "BFS GRAPH" << std::endl;
+        bfs_graph.print_edges();
     }
 
     return 0;
