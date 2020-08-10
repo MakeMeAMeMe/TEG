@@ -208,7 +208,6 @@ void Graph::bfs(Graph *bfs_graph) {
     bfs_graph->clear();
     size_t t, i, j;
     size_t current_node, neighbor;
-    coord origin, destiny;
     long int bfs_neighbor_index;
     t = 0;
     std::vector<size_t> vector_de_entrada(this->nodes.size());
@@ -229,12 +228,14 @@ void Graph::bfs(Graph *bfs_graph) {
                 Node *bfs_current_node;
                 bfs_current_node = bfs_graph->add_node(this->nodes[current_node]);
                 aux_queue.erase(aux_queue.begin());
+
                 for (j = 0; j < this->edges.size(); j++) {
                     if (this->edges[j].get_origin()->get_id() == this->nodes[current_node].get_id()) {
                         neighbor = this->edges[j].get_destiny()->get_id();
                     } else if (this->edges[j].get_destiny()->get_id() == this->nodes[current_node].get_id()) {
                         neighbor = this->edges[j].get_origin()->get_id();
                     } else {  // Não é vizinho
+                        j++;
                         continue;
                     }
                     Node *bfs_neighbor;
@@ -244,9 +245,7 @@ void Graph::bfs(Graph *bfs_graph) {
                         bfs_neighbor->set_level(bfs_current_node->get_level() + 1);
                         t += 1;
                         vector_de_entrada[neighbor] = t;
-                        origin = bfs_current_node->get_coord();
-                        destiny = bfs_neighbor->get_coord();
-                        Edge bfs_edge{bfs_current_node, bfs_neighbor, distance_coords(&(origin), &(destiny))};
+                        Edge bfs_edge{bfs_current_node, bfs_neighbor, this->edges[j].get_value()};
                         bfs_edge.set_color(COLORS::PURPLE);
                         bfs_graph->add_edge(bfs_edge);
                         aux_queue.push_back(neighbor);
@@ -254,9 +253,7 @@ void Graph::bfs(Graph *bfs_graph) {
                         // Will never be -1, I hope
                         bfs_neighbor_index = bfs_graph->get_node_index(neighbor);
                         bfs_neighbor = bfs_graph->get_node(bfs_neighbor_index);
-                        origin = bfs_current_node->get_coord();
-                        destiny = bfs_neighbor->get_coord();
-                        Edge bfs_edge{bfs_current_node, bfs_neighbor, distance_coords(&(origin), &(destiny))};
+                        Edge bfs_edge{bfs_current_node, bfs_neighbor, this->edges[j].get_value()};
                         if (bfs_neighbor->get_level() == bfs_current_node->get_level()) {
                             // Verify parenty
                             if (bfs_graph->is_brothers(bfs_current_node, bfs_neighbor)) {  // Brothers
@@ -264,10 +261,12 @@ void Graph::bfs(Graph *bfs_graph) {
                             } else {  // Cousins
                                 bfs_edge.set_color(COLORS::YELLOW);
                             }
-                        } else if (bfs_neighbor->get_level() == bfs_current_node->get_level() + 1) { // Uncle Bob
+                        } else if (bfs_neighbor->get_level() == bfs_current_node->get_level() + 1) {  // Uncle Bob
                             bfs_edge.set_color(COLORS::GREEN);
                         }
-                        bfs_graph->add_edge(bfs_edge);
+                        if (bfs_edge.get_color() != COLORS::WHITE) {
+                            bfs_graph->add_edge(bfs_edge);
+                        }
                     }
                 }
             }
