@@ -28,8 +28,8 @@ class Graph {
     void print_coords();
     void print_edges();
     void generate_edges();
-    void add_edge(Node *, Node *, double);
-    void add_edge(Edge);
+    void add_edge(Node *, Node *, double, bool);
+    void add_edge(Edge, bool);
     long int get_node_index(Node *);
     long int get_node_index(long int);
     short int is_brothers(Node*, Node*);

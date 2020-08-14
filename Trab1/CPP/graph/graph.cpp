@@ -16,7 +16,10 @@ Node *Graph::add_node(Node node) {
             }
         }
     }
-    node.set_id(this->nodes.size());
+    if (node.get_id() == -1)
+    {
+        node.set_id(this->nodes.size());
+    }
     this->nodes.push_back(node);
     return &(this->nodes[this->nodes.size() - 1]);
 }
@@ -58,14 +61,14 @@ void Graph::generate_edges() {
         }
         // With the n closest neighbors, create edges
         for (size_t j = 0; j < neighbors.size(); j++) {
-            this->add_edge(&(this->nodes[i]), neighbors[j].node, neighbors[j].distance);
+            this->add_edge(&(this->nodes[i]), neighbors[j].node, neighbors[j].distance, true);
         }
     }
 }
 
-void Graph::add_edge(Node *origin, Node *destiny, double value) {
+void Graph::add_edge(Node *origin, Node *destiny, double value, bool add_equals) {
     Edge edge{origin, destiny, value};
-    this->add_edge(edge);
+    this->add_edge(edge, add_equals);
 }
 
 void Graph::print_edges() {
@@ -74,11 +77,25 @@ void Graph::print_edges() {
     }
 }
 
-void Graph::add_edge(Edge edge) {
+void Graph::add_edge(Edge edge, bool add_equals) {
     // TODO: Check if origin and destiny in nodes
     bool origin, destiny;
     origin = false;
     destiny = false;
+    if (!add_equals)
+    {
+        for (size_t i = 0; i < this->edges.size(); i++)
+        {
+            if (edge.get_origin()->get_id() == this->edges[i].get_origin()->get_id() && edge.get_destiny()->get_id() == this->edges[i].get_destiny()->get_id())
+            {
+                return;
+            }
+            if (edge.get_origin()->get_id() == this->edges[i].get_destiny()->get_id() && edge.get_destiny()->get_id() == this->edges[i].get_origin()->get_id())
+            {
+                return;
+            }
+        }
+    }
     for (size_t i = 0; i < this->nodes.size(); i++) {
         if (this->nodes[i].get_id() == edge.get_origin()->get_id()) {
             origin = true;
@@ -115,70 +132,6 @@ long int Graph::get_node_index(long int id) {
     return -1;
 }
 
-void Graph::dfs(Graph *dfs_graph) {
-    dfs_graph->clear();
-    size_t t;
-    t = 0;
-    std::vector<size_t> input_depth(this->nodes.size());
-    std::vector<size_t> output_depth(this->nodes.size());
-    // Set root for search
-    size_t root_index;
-    root_index = std::rand() % this->nodes.size();
-    Node *root;
-    root = &(this->nodes[root_index]);
-    // Exec search
-    _dfs(root, &t, &input_depth, &output_depth, dfs_graph);
-}
-
-void Graph::_dfs(Node *node, size_t *t, std::vector<size_t> *input_depth, std::vector<size_t> *output_depth, Graph *dfs_graph) {
-    *t += 1;
-    size_t node_index, neighbor_index;
-    node_index = node->get_id();
-    (*input_depth)[node_index] = *t;
-    coord origin, destiny;
-    Node *neighbor = nullptr;
-    Node dfs_node{*node};
-    dfs_graph->add_node(dfs_node);
-    for (size_t i = 0; i < this->edges.size(); i++) {
-        if (this->edges[i].get_origin()->get_id() == node->get_id()) {
-            neighbor = this->edges[i].get_destiny();
-        } else if (this->edges[i].get_destiny()->get_id() == node->get_id()) {
-            neighbor = this->edges[i].get_origin();
-        } else {  // Não é vizinho
-            continue;
-        }
-        Node dfs_neighbor{*neighbor};
-        dfs_graph->add_node(dfs_neighbor);
-        neighbor_index = neighbor->get_id();
-        if ((*input_depth)[neighbor_index] == 0) {
-            Edge edge{&dfs_node, &dfs_neighbor, distance_coords(&origin, &destiny)};
-            edge.set_color(COLORS::BLUE);
-            dfs_graph->add_edge(edge);
-
-            _dfs(neighbor, t, input_depth, output_depth, dfs_graph);
-        } else {
-            bool is_father;
-            is_father = false;
-            for (size_t j = 0; j < dfs_graph->edges.size(); j++) {
-                if (dfs_graph->edges[j].get_origin()->get_id() == dfs_neighbor.get_id() && dfs_graph->edges[j].get_destiny()->get_id() == dfs_neighbor.get_id()) {
-                    is_father = true;
-                    break;
-                }
-            }
-            if ((*output_depth)[neighbor_index] == 0 && !is_father) {
-                // Add a red edge from neighbor to node
-                origin = node->get_coord();
-                destiny = neighbor->get_coord();
-                Edge edge{node, neighbor, distance_coords(&(origin), &(destiny))};
-                edge.set_color(COLORS::RED);
-                dfs_graph->add_edge(edge);
-            }
-        }
-    }
-    *t += 1;
-    (*output_depth)[node_index] = *t;
-}
-
 void Graph::clear() {
     this->edges.clear();
     this->nodes.clear();
@@ -191,7 +144,7 @@ short int Graph::is_brothers(Node *child_one, Node *child_two) {
         // TODO: Remove childs from origin
         is_father_of_one = false;
         for (j = 0; j < this->edges.size(); j++) {
-            if (this->edges[j].get_origin()->get_id() == this->nodes[i].get_id()) {
+            if (this->edges[j].get_origin()->get_id() == this->nodes[i].get_id() && this->edges[j].get_color() == PURPLE) {
                 if (this->edges[j].get_destiny()->get_id() == child_one->get_id() || this->edges[j].get_destiny()->get_id() == child_two->get_id()) {
                     if (is_father_of_one) {
                         return true;
@@ -235,7 +188,6 @@ void Graph::bfs(Graph *bfs_graph) {
                     } else if (this->edges[j].get_destiny()->get_id() == this->nodes[current_node].get_id()) {
                         neighbor = this->edges[j].get_origin()->get_id();
                     } else {  // Não é vizinho
-                        j++;
                         continue;
                     }
                     Node *bfs_neighbor;
@@ -247,7 +199,7 @@ void Graph::bfs(Graph *bfs_graph) {
                         vector_de_entrada[neighbor] = t;
                         Edge bfs_edge{bfs_current_node, bfs_neighbor, this->edges[j].get_value()};
                         bfs_edge.set_color(COLORS::PURPLE);
-                        bfs_graph->add_edge(bfs_edge);
+                        bfs_graph->add_edge(bfs_edge, false);
                         aux_queue.push_back(neighbor);
                     } else {
                         // Will never be -1, I hope
@@ -265,7 +217,7 @@ void Graph::bfs(Graph *bfs_graph) {
                             bfs_edge.set_color(COLORS::GREEN);
                         }
                         if (bfs_edge.get_color() != COLORS::WHITE) {
-                            bfs_graph->add_edge(bfs_edge);
+                            bfs_graph->add_edge(bfs_edge, false);
                         }
                     }
                 }
