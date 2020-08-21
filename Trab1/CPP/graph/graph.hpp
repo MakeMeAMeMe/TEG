@@ -7,6 +7,7 @@
 
 // Local headers imports
 #include "../color/color.hpp"
+#include "../graphimage/graphviz.hpp"
 #include "edge.hpp"
 #include "node.hpp"
 
@@ -26,7 +27,7 @@ class Graph {
    public:
     Node *add_node(Node);
     void print_coords();
-    void print_edges();
+    void print_edges(Graphviz, bool);
     void generate_edges();
     void add_edge(Node *, Node *, double, bool);
     void add_edge(Edge, bool);

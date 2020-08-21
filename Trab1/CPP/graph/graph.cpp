@@ -2,9 +2,12 @@
 #include <cmath>
 #include <iostream>
 #include <utility>
+#include <fstream>
+#include <string>
 
 // Local imports
 #include "graph.hpp"
+#include "../graphimage/graphviz.hpp"
 
 // Graph
 
@@ -61,7 +64,7 @@ void Graph::generate_edges() {
         }
         // With the n closest neighbors, create edges
         for (size_t j = 0; j < neighbors.size(); j++) {
-            this->add_edge(&(this->nodes[i]), neighbors[j].node, neighbors[j].distance, true);
+            this->add_edge(&(this->nodes[i]), neighbors[j].node, neighbors[j].distance, false);
         }
     }
 }
@@ -71,9 +74,10 @@ void Graph::add_edge(Node *origin, Node *destiny, double value, bool add_equals)
     this->add_edge(edge, add_equals);
 }
 
-void Graph::print_edges() {
+void Graph::print_edges(Graphviz graphviz, bool firsttime) {
     for (Edge edge : this->edges) {
-        edge.print_aresta();
+        edge.print_aresta(!firsttime);
+        graphviz.insert_edge(&edge);
     }
 }
 
@@ -144,7 +148,7 @@ short int Graph::is_brothers(Node *child_one, Node *child_two) {
         // TODO: Remove childs from origin
         is_father_of_one = false;
         for (j = 0; j < this->edges.size(); j++) {
-            if (this->edges[j].get_origin()->get_id() == this->nodes[i].get_id() && this->edges[j].get_color() == PURPLE) {
+            if (this->edges[j].get_origin()->get_id() == this->nodes[i].get_id() && this->edges[j].get_color() == BLUE) {
                 if (this->edges[j].get_destiny()->get_id() == child_one->get_id() || this->edges[j].get_destiny()->get_id() == child_two->get_id()) {
                     if (is_father_of_one) {
                         return true;
@@ -162,6 +166,7 @@ void Graph::bfs(Graph *bfs_graph) {
     size_t t, i, j;
     size_t current_node, neighbor;
     long int bfs_neighbor_index;
+    long level_reset;
     t = 0;
     std::vector<size_t> vector_de_entrada(this->nodes.size());
     std::vector<size_t> aux_queue;
@@ -180,6 +185,7 @@ void Graph::bfs(Graph *bfs_graph) {
                 // Add node to bfs_graph
                 Node *bfs_current_node;
                 bfs_current_node = bfs_graph->add_node(this->nodes[current_node]);
+                level_reset = bfs_current_node->get_level();
                 aux_queue.erase(aux_queue.begin());
 
                 for (j = 0; j < this->edges.size(); j++) {
@@ -193,12 +199,14 @@ void Graph::bfs(Graph *bfs_graph) {
                     Node *bfs_neighbor;
                     if (vector_de_entrada[neighbor] == 0) {
                         // First time in this node, add to bfs graph
+                        bfs_current_node->set_level(level_reset);
                         bfs_neighbor = bfs_graph->add_node(this->nodes[neighbor]);
                         bfs_neighbor->set_level(bfs_current_node->get_level() + 1);
                         t += 1;
                         vector_de_entrada[neighbor] = t;
                         Edge bfs_edge{bfs_current_node, bfs_neighbor, this->edges[j].get_value()};
-                        bfs_edge.set_color(COLORS::PURPLE);
+                        bfs_edge.set_color(COLORS::BLUE);
+                        bfs_edge.set_color_name("blue");
                         bfs_graph->add_edge(bfs_edge, false);
                         aux_queue.push_back(neighbor);
                     } else {
@@ -209,12 +217,17 @@ void Graph::bfs(Graph *bfs_graph) {
                         if (bfs_neighbor->get_level() == bfs_current_node->get_level()) {
                             // Verify parenty
                             if (bfs_graph->is_brothers(bfs_current_node, bfs_neighbor)) {  // Brothers
-                                bfs_edge.set_color(COLORS::BLACK);
+                                bfs_edge.set_color(COLORS::RED);
+                                bfs_edge.set_color_name("red");
                             } else {  // Cousins
                                 bfs_edge.set_color(COLORS::YELLOW);
+                                bfs_edge.set_color_name("yellow");
+
                             }
                         } else if (bfs_neighbor->get_level() == bfs_current_node->get_level() + 1) {  // Uncle Bob
                             bfs_edge.set_color(COLORS::GREEN);
+                            bfs_edge.set_color_name("green");
+
                         }
                         if (bfs_edge.get_color() != COLORS::WHITE) {
                             bfs_graph->add_edge(bfs_edge, false);
