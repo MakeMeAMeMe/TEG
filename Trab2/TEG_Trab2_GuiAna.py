@@ -65,9 +65,9 @@ class Grafo:
                 for u in self.vertices:
                     if id_pontoB == u.id:   
                         if [u,peso] not in v.vizinhos:   
-                            v.add_vizinho(u)
+                            v.add_vizinho([u,peso,])
                             print(v.vizinhos.__len__())
-                            u.add_vizinho(v)
+                            u.add_vizinho([v,peso,])
                             self.arestas.append(Aresta(v,u,peso))
                             return True
         else:
@@ -77,7 +77,8 @@ class Grafo:
         for v in self.vertices:
             print(v.nome)
             print("----------")
-            print(v.vizinhos.__len__())
+            for u in v.vizinhos:
+                print(str(u[0].nome) + ": " + str(u[1]))
     
     #def criar_arvore(self, vertice):
     #    root = TreeNode(vertice,0)
