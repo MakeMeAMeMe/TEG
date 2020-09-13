@@ -1,4 +1,3 @@
-from operator import itemgetter
 import graphics
 import random
 
@@ -43,15 +42,12 @@ class Aresta:
         self.pontoA = pontoA
         self.pontoB = pontoB
         self.peso = peso
-    
-    def get_pontoA(self):
-        return self.pontoA
 
 class Grafo:
     vertices = list()
     arestas = list()
     minimum_distance_tree = 999999
-    minimum_distance_next = 999999
+    minimum_distance_next = 0
     minimum_tree_path = list()
     minimum_next_path = list()
 
@@ -74,6 +70,14 @@ class Grafo:
                             return True
         else:
             return False
+    
+    def sort_aresta_peso(self):
+        for i in range (self.arestas.__len__()):
+            for j in range (self.arestas.__len__()):
+                if self.arestas[i].peso < self.arestas[j].peso:
+                    aux = self.arestas[i]
+                    self.arestas[i] = self.arestas[j]
+                    self.arestas[j] = aux
 
     def print_grafo(self):
         for v in self.vertices:
@@ -136,25 +140,66 @@ class Grafo:
             print("distância: " + str(aux_distance))
             if self.minimum_distance_tree > aux_distance:
                 self.minimum_distance_tree = aux_distance
-                self.minimum_tree_path = aux_path  
+                self.minimum_tree_path = aux_path
+        
+        ##print menor caminho
+          
 
     def minimos_sucessivos(self, root):
         minimum_child_distance = 99999
         if root.children:
-            print(root.children)
             for child in root.children:
-                print(child.distancia + " -- " + minimum_child_distance)
                 if child.distancia < minimum_child_distance:
                     minimum_child_distance = child.distancia
                     next_child = child
+                    self.minimum_distance_next += child.distancia
             self.minimum_next_path.append(next_child.vertice)
             self.minimos_sucessivos(next_child)
 
+    def find_parent(self, pos, parent_list):
+        if parent_list[pos] == pos:
+            return pos
+        return self.find_parent(parent_list[pos], parent_list)
+
     def peso_arestas(self):
-        return True
+        arestas_minimizadas = list()
+
+        parent = list()
+        for i in range(self.vertices.__len__()):
+            parent.append(i)
+
+        i = 0
+        count = 0
+        while count != self.vertices.__len__()-1:
+            aresta_atual = self.arestas[i]
+
+            count_1 = 0
+            count_2 = 0
+            for aresta_min in arestas_minimizadas:
+                if aresta_atual.pontoA.id == aresta_min.pontoA.id or aresta_atual.pontoA.id == aresta_min.pontoB.id:
+                    count_1 += 1
+                if aresta_atual.pontoB.id == aresta_min.pontoA.id or aresta_atual.pontoB.id == aresta_min.pontoB.id:
+                    count_2 += 1
+            if count_1 == 2:
+                i += 1
+                continue
+            if count_2 == 2:
+                i += 1
+                continue
+
+            ponto_a_parent = self.find_parent(aresta_atual.pontoA.id, parent)
+            ponto_b_parent = self.find_parent(aresta_atual.pontoB.id, parent)
+
+            if ponto_a_parent != ponto_b_parent:
+                arestas_minimizadas.append(aresta_atual)
+                count += 1
+                parent[ponto_a_parent] = ponto_b_parent
+            i += 1
+        return arestas_minimizadas
+
 
 grafo_teste = Grafo()
-cidades = ["cidade1","cidade2","cidade3","cidade4"]
+cidades = ["cidade1","cidade2","cidade3","cidade4","cidade5"]
 x = [1,2,3,4]
 y = [1,2,3,4]
 
@@ -182,11 +227,56 @@ for v in grafo_teste.vertices:
         grafo_teste.minimum_tree_path.insert(0,v)
 for vertice in grafo_teste.minimum_tree_path:
     print(vertice.nome)
-
+##graphics
 print("----------")
-grafo_teste.minimos_sucessivos(root)
-for v in grafo_teste.vertices:
-    if v.id == 0:
-        grafo_teste.minimum_next_path.insert(0,v)
-for vertice in grafo_teste.minimum_next_path:
+min_next_dist = 999999
+min_next_path = []
+for vertice in grafo_teste.vertices:
+    teste_min_suc = grafo_teste.criar_arvore(vertice)
+    grafo_teste.construir_arvore(teste_min_suc)
+    grafo_teste.fechar_ciclo(teste_min_suc, teste_min_suc)
+    grafo_teste.minimum_next_path = []
+    grafo_teste.minimum_distance_next = 0
+    grafo_teste.minimos_sucessivos(teste_min_suc)
+    if min_next_dist > grafo_teste.minimum_distance_next:
+        min_next_path = []
+        min_next_path.append(vertice)
+        min_next_dist = grafo_teste.minimum_distance_next
+        min_next_path.extend(grafo_teste.minimum_next_path)
+
+
+#
+for vertice in min_next_path:
     print(vertice.nome)
+print("--------------")
+
+grafo_teste.sort_aresta_peso()
+arestas_minimizadas = grafo_teste.peso_arestas()
+
+vertice_1 = Vertice("",0,0,0)
+vertice_2 = Vertice("",0,0,0)
+for vertice in grafo_teste.vertices:
+    count_1 = 0
+    for aresta in arestas_minimizadas:
+        if vertice == aresta.pontoA or vertice == aresta.pontoB:
+            count_1 += 1
+    if count_1 == 1:
+        vertice_1 = vertice
+
+for vertice in grafo_teste.vertices:
+    count_2 = 0
+    for aresta in arestas_minimizadas:
+        if vertice != vertice_1:
+            if vertice == aresta.pontoA or vertice == aresta.pontoB:
+                count_2 += 1
+    if count_2 == 1:
+        vertice_2 = vertice
+
+for aresta in grafo_teste.arestas:
+    if aresta.pontoA == vertice_1 and aresta.pontoB == vertice_2:
+        arestas_minimizadas.append(aresta)
+    elif aresta.pontoB == vertice_1 and aresta.pontoA == vertice_2:
+        arestas_minimizadas.append(aresta)
+
+for aresta in arestas_minimizadas:
+    print(str(aresta.pontoA.nome) + "," + str(aresta.pontoB.nome) + ":" + str(aresta.peso))
