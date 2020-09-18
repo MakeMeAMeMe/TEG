@@ -8,16 +8,15 @@
 // Typedefs
 // Structs & Classes
 
-class Path {
+class Min {
    public:
-    Path(int, std::vector<Node>, Graph);
+    Min(int, std::vector<Node>, Graph);
     void get_shortest_path(std::vector<Node>, std::vector<Node>, Node, Node, int);
-    std::vector<Node> get_path();
-    int get_distance();
+    void print_path();
 
    private:
-    std::vector<Node> path;
     int distance;
+    std::vector<Node> path;
     Graph graph;
 };
 

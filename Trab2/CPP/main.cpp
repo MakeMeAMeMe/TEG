@@ -5,7 +5,8 @@
 // Local imports
 #include "graph/graph.hpp"
 #include "graphimage/graphviz.hpp"
-#include "tree/path.hpp"
+#include "methods/path.hpp"
+#include "methods/min.hpp"
 
 // Defines
 #define GRAPHSIZE 10
@@ -30,7 +31,7 @@ int main()
     // add matrix to the graph matrix
     for (size_t i = 0; i < GRAPHSIZE; i++)
     {
-        for (size_t j = 0; j < GRAPHSIZE; j++)
+        for (long int j = 0; j < GRAPHSIZE; j++)
         {
             // add nodes if its the first time here
             if (i == 0)
@@ -42,6 +43,20 @@ int main()
         }
     }
 
+    // Minimos sucessivos
+
+    Min min{0, {}, graph};
+    for (size_t i = 0; i < GRAPHSIZE; i++)
+    {
+        // pick the shortest_path of each initial node
+        min.get_shortest_path(graph.get_nodes(), {}, graph.get_node(i), graph.get_node(i), 0);
+    }
+    
+    min.print_path();
+
+
+    // Construcao de arvores
+    
     Path path{0, {}, graph};
     for (size_t i = 0; i < GRAPHSIZE; i++)
     {
@@ -49,15 +64,7 @@ int main()
         path.get_shortest_path(graph.get_nodes(), {}, graph.get_node(i), graph.get_node(i), 0);
     }
     
-    std::cout<<"Menor distancia (Construcao de arvores): "<<path.get_distance()<<"m\n";
-
-    std::cout<<"Caminho encontrado:\n";
-
-    for (size_t i = 0; i < path.get_path().size(); i++)
-    {
-        std::cout<<path.get_path()[i].get_nome()<<", ";
-    }
-    std::cout<<std::endl;
+    path.print_path();
     
 
 

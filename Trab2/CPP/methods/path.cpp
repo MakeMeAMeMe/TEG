@@ -30,9 +30,8 @@ void Path::get_shortest_path(std::vector<Node> nodes, std::vector<Node> path, No
         {
             this->distance = distance;
             this->path = path;
-            return;
         }
-        
+        return;
     }
 
     for (size_t i = 0; i < nodes.size(); i++)
@@ -42,11 +41,15 @@ void Path::get_shortest_path(std::vector<Node> nodes, std::vector<Node> path, No
     }
 }
 
-std::vector<Node> Path::get_path(){
-    return this->path;
-}
+void Path::print_path(){
+    std::cout<<"\nMenor distancia (Construcao de arvores): "<<distance<<"m\n";
 
-int Path::get_distance(){
-    return this->distance;
+    std::cout<<"\nCaminho encontrado:\n\n";
+
+    for (size_t i = 0; i < path.size(); i++)
+    {
+        std::cout<<path[i].get_nome()<<", ";
+    }
+    std::cout<<std::endl;
 }
 

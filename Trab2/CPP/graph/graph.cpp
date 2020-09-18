@@ -13,7 +13,7 @@ void Graph::init_matrix(int graphsize){
 
     this->distance_matrix = (int **)calloc(graphsize, sizeof(int *));
     
-    for (size_t i = 0; i < graphsize; i++)
+    for (int i = 0; i < graphsize; i++)
     {
         this->distance_matrix[i] = (int *)calloc(graphsize, sizeof(int));
     }

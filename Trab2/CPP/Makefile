@@ -5,12 +5,12 @@ buildFolder=build/
 graphvizFolder=graphimage/
 imgGraphFolder=img_graph/
 imgTreeFolder=img_tree/
-treeFolder=tree/
+methodsFolder=methods/
 
 all: check_build_folder compile
 
-compile: main.o graph.o graphviz.o node.o path.o
-	g++ $(buildFolder)main.o $(buildFolder)graph.o $(buildFolder)node.o $(buildFolder)graphviz.o $(buildFolder)path.o $(parametrosCompilacao) -o $(execName)
+compile: main.o graph.o graphviz.o node.o path.o min.o
+	g++ $(buildFolder)main.o $(buildFolder)graph.o $(buildFolder)node.o $(buildFolder)graphviz.o $(buildFolder)path.o $(buildFolder)min.o $(parametrosCompilacao) -o $(execName)
 
 main.o: main.cpp
 	g++ -c main.cpp $(parametrosCompilacao) -o $(buildFolder)main.o
@@ -24,8 +24,11 @@ node.o: $(graphFolder)node.cpp $(graphFolder)node.hpp
 graphviz.o: $(graphvizFolder)graphviz.cpp $(graphvizFolder)graphviz.hpp
 	g++ -c $(graphvizFolder)graphviz.cpp $(parametrosCompilacao) -o $(buildFolder)graphviz.o
 
-path.o: $(treeFolder)path.cpp $(treeFolder)path.hpp
-	g++ -c $(treeFolder)path.cpp $(parametrosCompilacao) -o $(buildFolder)path.o
+path.o: $(methodsFolder)path.cpp $(methodsFolder)path.hpp
+	g++ -c $(methodsFolder)path.cpp $(parametrosCompilacao) -o $(buildFolder)path.o
+
+min.o: $(methodsFolder)min.cpp $(methodsFolder)min.hpp
+	g++ -c $(methodsFolder)min.cpp $(parametrosCompilacao) -o $(buildFolder)min.o
 
 clear: remove_build_folder
 	rm $(execName)
