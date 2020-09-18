@@ -286,10 +286,7 @@ for v in grafo.vertices:
 
 grafo.construir_arvore(root, root)
 aux = grafo.caminho_minimo_arvore(root, 0, [], root)
-
-for v in grafo.vertices:
-    if v.id == 0:
-        grafo.minimum_tree_path.insert(0,v)
+grafo.minimum_tree_path.insert(0,root.vertice)
 
 print("")
 print("********Algoritmo das Árvores***********")
