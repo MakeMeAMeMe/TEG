@@ -90,47 +90,37 @@ class Grafo:
         root = TreeNode(vertice,0)
         return root
 
-    def construir_arvore(self, root, origin):
-        parent_vertice_list = list()
-        for parent in root.parent:
-            parent_vertice_list.append(parent.vertice)
-
-        if len(parent_vertice_list) == len(root.vertice.vizinhos):
+    def construir_arvore(self, root):
+        queue = []
+        queue.extend(root.vertice.vizinhos)
+        checker = True
+        while queue:
+            u = queue.pop()
+            for parent in root.parent:
+                if parent.vertice.nome == u[0].nome:
+                    checker = False
+            if checker:
+                tree_u = TreeNode(u[0],u[1])
+                root.add_child(tree_u)
+                self.construir_arvore(tree_u)
+            checker = True
+        
+    def fechar_ciclo(self, root, origin):
+        root.color = "red"
+        queue = []
+        queue.extend(root.children)
+        if root.children:
+            while queue:
+                u = queue.pop()
+                if u.color == "black": 
+                    self.fechar_ciclo(u, origin)
+        else:
             for v in root.vertice.vizinhos:
                 if v[0] == origin.vertice:
                     tree_v = TreeNode(v[0],v[1])
+                    tree_v.color = "red"
                     root.add_child(tree_v)
-        else:    
-            queue = []
-            queue.extend(root.vertice.vizinhos)
-            checker = True
-            while queue:
-                u = queue.pop()
-                for parent in root.parent:
-                    if parent.vertice.nome == u[0].nome:
-                        checker = False
-                if checker:
-                    tree_u = TreeNode(u[0],u[1])
-                    root.add_child(tree_u)
-                    self.construir_arvore(tree_u, origin)
-                checker = True
-        
-    #def fechar_ciclo(self, root, origin):
-    #    root.color = "red"
-    #    queue = []
-    #    queue.extend(root.children)
-    #    if root.children:
-    #        while queue:
-    #            u = queue.pop()
-    #            if u.color == "black": 
-    #                self.fechar_ciclo(u, origin)
-    #    else:
-    #        for v in root.vertice.vizinhos:
-    #            if v[0] == origin.vertice:
-    #                tree_v = TreeNode(v[0],v[1])
-    #                tree_v.color = "red"
-    #                root.add_child(tree_v)
-    #
+    
     def caminho_minimo_arvore(self, root, aux_distance, aux_path, origin):
         root.color = "blue"
         if root.children:
@@ -225,67 +215,68 @@ for v in grafo_teste.vertices:
     if v.id == 0:
         root = grafo_teste.criar_arvore(v)
 
-grafo_teste.construir_arvore(root, root)
+grafo_teste.construir_arvore(root)
+grafo_teste.fechar_ciclo(root, root)
 
 root.print_tree()
 
 grafo_teste.print_grafo()
-#grafo_teste.caminho_minimo_arvore(root, 0, [], root)
-#for v in grafo_teste.vertices:
-#    if v.id == 0:
-#        grafo_teste.minimum_tree_path.insert(0,v)
-#for vertice in grafo_teste.minimum_tree_path:
-#    print(vertice.nome)
-###graphics
-#print("----------")
-#min_next_dist = 999999
-#min_next_path = []
-#for vertice in grafo_teste.vertices:
-#    teste_min_suc = grafo_teste.criar_arvore(vertice)
-#    grafo_teste.construir_arvore(teste_min_suc, teste_min_suc)
-#    grafo_teste.minimum_next_path = []
-#    grafo_teste.minimum_distance_next = 0
-#    grafo_teste.minimos_sucessivos(teste_min_suc)
-#    if min_next_dist > grafo_teste.minimum_distance_next:
-#        min_next_path = []
-#        min_next_path.append(vertice)
-#        min_next_dist = grafo_teste.minimum_distance_next
-#        min_next_path.extend(grafo_teste.minimum_next_path)
+grafo_teste.caminho_minimo_arvore(root, 0, [], root)
+for v in grafo_teste.vertices:
+    if v.id == 0:
+        grafo_teste.minimum_tree_path.insert(0,v)
+for vertice in grafo_teste.minimum_tree_path:
+    print(vertice.nome)
+##graphics
+print("----------")
+min_next_dist = 999999
+min_next_path = []
+for vertice in grafo_teste.vertices:
+    teste_min_suc = grafo_teste.criar_arvore(vertice)
+    grafo_teste.construir_arvore(teste_min_suc)
+    grafo_teste.fechar_ciclo(teste_min_suc, teste_min_suc)
+    grafo_teste.minimum_next_path = []
+    grafo_teste.minimum_distance_next = 0
+    grafo_teste.minimos_sucessivos(teste_min_suc)
+    if min_next_dist > grafo_teste.minimum_distance_next:
+        min_next_path = []
+        min_next_path.append(vertice)
+        min_next_dist = grafo_teste.minimum_distance_next
+        min_next_path.extend(grafo_teste.minimum_next_path)
+
+
 #
-#
-##
-#for vertice in min_next_path:
-#    print(vertice.nome)
-#print("--------------")
-#
-#grafo_teste.sort_aresta_peso()
-#arestas_minimizadas = grafo_teste.peso_arestas()
-#
-#vertice_1 = Vertice("",0,0,0)
-#vertice_2 = Vertice("",0,0,0)
-#for vertice in grafo_teste.vertices:
-#    count_1 = 0
-#    for aresta in arestas_minimizadas:
-#        if vertice == aresta.pontoA or vertice == aresta.pontoB:
-#            count_1 += 1
-#    if count_1 == 1:
-#        vertice_1 = vertice
-#
-#for vertice in grafo_teste.vertices:
-#    count_2 = 0
-#    for aresta in arestas_minimizadas:
-#        if vertice != vertice_1:
-#            if vertice == aresta.pontoA or vertice == aresta.pontoB:
-#                count_2 += 1
-#    if count_2 == 1:
-#        vertice_2 = vertice
-#
-#for aresta in grafo_teste.arestas:
-#    if aresta.pontoA == vertice_1 and aresta.pontoB == vertice_2:
-#        arestas_minimizadas.append(aresta)
-#    elif aresta.pontoB == vertice_1 and aresta.pontoA == vertice_2:
-#        arestas_minimizadas.append(aresta)
-#
-#for aresta in arestas_minimizadas:
-#    print(str(aresta.pontoA.nome) + "," + str(aresta.pontoB.nome) + ":" + str(aresta.peso))
-#
+for vertice in min_next_path:
+    print(vertice.nome)
+print("--------------")
+
+grafo_teste.sort_aresta_peso()
+arestas_minimizadas = grafo_teste.peso_arestas()
+
+vertice_1 = Vertice("",0,0,0)
+vertice_2 = Vertice("",0,0,0)
+for vertice in grafo_teste.vertices:
+    count_1 = 0
+    for aresta in arestas_minimizadas:
+        if vertice == aresta.pontoA or vertice == aresta.pontoB:
+            count_1 += 1
+    if count_1 == 1:
+        vertice_1 = vertice
+
+for vertice in grafo_teste.vertices:
+    count_2 = 0
+    for aresta in arestas_minimizadas:
+        if vertice != vertice_1:
+            if vertice == aresta.pontoA or vertice == aresta.pontoB:
+                count_2 += 1
+    if count_2 == 1:
+        vertice_2 = vertice
+
+for aresta in grafo_teste.arestas:
+    if aresta.pontoA == vertice_1 and aresta.pontoB == vertice_2:
+        arestas_minimizadas.append(aresta)
+    elif aresta.pontoB == vertice_1 and aresta.pontoA == vertice_2:
+        arestas_minimizadas.append(aresta)
+
+for aresta in arestas_minimizadas:
+    print(str(aresta.pontoA.nome) + "," + str(aresta.pontoB.nome) + ":" + str(aresta.peso))
