@@ -53,5 +53,15 @@ std::vector<Node> Graph::get_nodes(){
     return this->nodes;
 }
 
+Node Graph::get_node_by_id(long id){
+    for (size_t i = 0; i < this->nodes.size(); i++)
+    {
+        if(this->nodes[i].get_id() == id){
+            return this->nodes[i];
+        }
+    }
+    
+}
+
 
 // Util

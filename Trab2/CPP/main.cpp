@@ -44,7 +44,7 @@ int main() {
     for (size_t i = 0; i < GRAPHSIZE; i++) {
         OrdemPesos ordem{graph};
         // pick the shortest_path of each initial node
-        ordem.get_shortest_path(graph.get_nodes(), {}, graph.get_node(i), graph.get_node(i), 0);
+        ordem.get_shortest_path(graph.get_node(i));
         ordem.print_path();
     }
 

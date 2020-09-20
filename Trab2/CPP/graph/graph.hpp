@@ -20,6 +20,7 @@ class Graph {
    public:
     Node *add_node(Node);
     Node get_node(size_t);
+    Node get_node_by_id(long);
     std::vector<Node> get_nodes();
     void init_matrix(int);
     void set_distance(int, int, int);
