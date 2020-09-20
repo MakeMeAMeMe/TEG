@@ -1,5 +1,5 @@
 parametrosCompilacao=-Wall -o3 -g -lgvc -lcgraph -lcdt
-execName=busca
+execName=minPath
 graphFolder=graph/
 buildFolder=build/
 graphvizFolder=graphimage/
@@ -9,8 +9,8 @@ methodsFolder=methods/
 
 all: check_build_folder compile
 
-compile: main.o graph.o graphviz.o node.o path.o min.o
-	g++ $(buildFolder)main.o $(buildFolder)graph.o $(buildFolder)node.o $(buildFolder)graphviz.o $(buildFolder)path.o $(buildFolder)min.o $(parametrosCompilacao) -o $(execName)
+compile: main.o graph.o graphviz.o node.o path.o min.o ord.o
+	g++ $(buildFolder)main.o $(buildFolder)graph.o $(buildFolder)node.o $(buildFolder)ord.o $(buildFolder)graphviz.o $(buildFolder)path.o $(buildFolder)min.o $(parametrosCompilacao) -o $(execName)
 
 main.o: main.cpp
 	g++ -c main.cpp $(parametrosCompilacao) -o $(buildFolder)main.o
@@ -29,6 +29,9 @@ path.o: $(methodsFolder)path.cpp $(methodsFolder)path.hpp
 
 min.o: $(methodsFolder)min.cpp $(methodsFolder)min.hpp
 	g++ -c $(methodsFolder)min.cpp $(parametrosCompilacao) -o $(buildFolder)min.o
+
+ord.o: $(methodsFolder)ord_pesos.cpp $(methodsFolder)ord_pesos.hpp
+	g++ -c $(methodsFolder)ord_pesos.cpp $(parametrosCompilacao) -o $(buildFolder)ord.o
 
 clear: remove_build_folder
 	rm $(execName)
