@@ -1,5 +1,5 @@
 import random
-from graphics import *
+from graphics import GraphWin, Line, Point, Circle, Text
 
 window = GraphWin("Método das Árvores", 900, 600)
 window2 = GraphWin("Método dos mínimos sucessivos", 900, 600)
