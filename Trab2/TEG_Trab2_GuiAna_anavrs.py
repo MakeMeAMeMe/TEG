@@ -366,7 +366,6 @@ for aresta in arestas_minimizadas:
     pt1_a = Point(aresta.pontoA.x*constantex, aresta.pontoA.y*constantey)
     pt2_a = Point(aresta.pontoB.x*constantex, aresta.pontoB.y*constantey)
     draw_aresta("green", pt1_a,pt2_a , window3)
-print("****************************************")
 
 distancia = 0
 for aresta in arestas_minimizadas:
@@ -389,6 +388,7 @@ for i in range(1,11):
 for i in range(len(minimum_aresta_path)):
     print(str(i) + ": " + minimum_aresta_path[i].nome)
 print("Distância: " + str(distancia))
+print("****************************************")
 
 window.getMouse()
 window2.getMouse()
