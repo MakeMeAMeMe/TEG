@@ -31,7 +31,7 @@ class OrdemPesos {
     Graph graph;
     std::vector<Edge> edges;
     std::map<int, Grau> graus;
-    bool have_cicle(std::vector<int>, long, std::vector<long>&);
+    bool have_cicle(std::vector<int>, long, std::vector<long>&, std::vector<long>&);
 
    public:
     OrdemPesos(Graph);
