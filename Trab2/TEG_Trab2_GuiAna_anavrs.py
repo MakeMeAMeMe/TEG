@@ -1,19 +1,18 @@
-import graphics
 import random
-from graphics import *
+from graphics import GraphWin, Line, Point, Circle, Text
 
 window = GraphWin("Método das Árvores", 900, 600)
 window2 = GraphWin("Método dos mínimos sucessivos", 900, 600)
 window3 = GraphWin("Método da ordenação dos peso das arestas", 900, 600)
 constantex = 100
-constantey = 130
+constantey = 110
 
 class TreeNode:
     def __init__(self, vertice, distancia):
-        self.vertice = vertice
-        self.distancia = distancia
-        self.children = list()
-        self.parent = []
+        self.vertice = vertice #elemento do nodo
+        self.distancia = distancia #distancia para o pai imediato
+        self.children = list() #lista de filhos imediatos
+        self.parent = [] #lista de todos os pais
         self.color = "black"
 
     def add_child(self, child):
@@ -40,7 +39,7 @@ class Vertice:
         self.y = y
         self.vizinhos = list()
 
-    def add_vizinho(self, vizinho):
+    def add_vizinho(self, vizinho): #lista de [vertice,distância até o vertice]
         if vizinho not in self.vizinhos:
             self.vizinhos.append(vizinho)
 
@@ -53,10 +52,11 @@ class Aresta:
 class Grafo:
     vertices = list()
     arestas = list()
-    minimum_distance_tree = 999999
-    minimum_distance_next = 0
-    minimum_tree_path = list()
-    minimum_next_path = list()
+    minimum_distance_tree = 999999 #distancia método de árvores
+    minimum_distance_next = 0 #distância mínimos sucessivos
+    minimum_tree_path = list() #caminho minimo do método de árvores
+    minimum_next_path = list() #caminho minimo do método de sucessivos
+    minimum_tree_distances_list = list() #lista de distancias método árvoes
 
     def add_vertice(self, vertice):
         if isinstance(vertice, Vertice) and vertice not in self.vertices:
@@ -79,8 +79,8 @@ class Grafo:
             return False
     
     def sort_aresta_peso(self):
-        for i in range (self.arestas.__len__()):
-            for j in range (self.arestas.__len__()):
+        for i in range (len(self.arestas)):
+            for j in range (len(self.arestas)):
                 if self.arestas[i].peso < self.arestas[j].peso:
                     aux = self.arestas[i]
                     self.arestas[i] = self.arestas[j]
@@ -97,73 +97,90 @@ class Grafo:
         root = TreeNode(vertice,0)
         return root
 
-    def construir_arvore(self, root):
-        queue = []
-        queue.extend(root.vertice.vizinhos)
-        checker = True
-        while queue:
-            u = queue.pop()
-            for parent in root.parent:
+    def construir_arvore(self, root, origin):
 
-                if parent.vertice.nome == u[0].nome:
-                    checker = False
-            if checker:
-                tree_u = TreeNode(u[0],u[1])
-                root.add_child(tree_u)
-                self.construir_arvore(tree_u)
-            checker = True
-        
-    def fechar_ciclo(self, root, origin):
-        root.color = "red"
-        queue = []
-        queue.extend(root.children)
-        if root.children:
-            while queue:
-                u = queue.pop()
-                if u.color == "black": 
-                    self.fechar_ciclo(u, origin)
-        else:
+        #se o número de pais = número de vizinhos, fechar ciclo
+        if len(root.parent) == len(root.vertice.vizinhos):
             for v in root.vertice.vizinhos:
                 if v[0] == origin.vertice:
                     tree_v = TreeNode(v[0],v[1])
-                    tree_v.color = "red"
                     root.add_child(tree_v)
+        #se o número de pais != número de vizinhos, continuar a construção
+        else:    
+            queue = []
+            queue.extend(root.vertice.vizinhos)
+            checker = True
+            while queue:
+                u = queue.pop()
+                for parent in root.parent:
+                    if parent.vertice.nome == u[0].nome: #checar se vertice já é pai
+                        checker = False #se sim então não add como filho
+                if checker: #se não criar nodo com distância até vertice e add como filho
+                    tree_u = TreeNode(u[0],u[1])
+                    root.add_child(tree_u)
+                    self.construir_arvore(tree_u, origin)
+                checker = True
     
-    def caminho_minimo_arvore(self, root, aux_distance, aux_path, origin):
-        root.color = "blue"
-        if root.children:
+    def caminho_minimo_arvore(self, root, aux_distance, aux_path, aux_distance_list, origin):
+        root.color = "red" #marcar como visitado
+        if root.children: #se tiver filhos continua a percorrer
             queue = root.children
             while queue:
                 u = queue.pop()
-                if u.color == "red":
-                    aux_distance += u.distancia
+                if u.color == "black": #entrar se não tiver sido visitado
+                    node_distance = 0
+                    node_distance = u.distancia + aux_distance #distância até o nodo
                     node_path = []
                     node_path.extend(aux_path)
-                    node_path.append(u.vertice)
-                    self.caminho_minimo_arvore(u, aux_distance, node_path, origin)
-        else:
-            #print("caminho testado:")
-            #for v in aux_path:
-                #print(v.nome)
-            #print("distância: " + str(aux_distance))
-            if self.minimum_distance_tree > aux_distance:
+                    node_path.append(u.vertice) #caminho até o nodo
+                    node_dist_list = list()
+                    node_dist_list.extend(aux_distance_list)
+                    node_dist_list.append(u.distancia)
+                    self.caminho_minimo_arvore(u, node_distance, node_path, node_dist_list, origin)
+        else: #sem filhos = fim do percurso
+            if self.minimum_distance_tree > aux_distance: #compara menor distancia registrada com a do caminho
                 self.minimum_distance_tree = aux_distance
                 self.minimum_tree_path = aux_path
+                self.minimum_tree_distances_list = aux_distance_list
+        #self.minimum_tree_distances_list.append(root.distancia
         return (self.minimum_distance_tree)
-        ##print menor caminho
-          
+        
 
-    def minimos_sucessivos(self, root):
+    def minimos_sucessivos(self, root, origin):
         minimum_child_distance = 99999
-        if root.children:
-            for child in root.children:
-                if child.distancia < minimum_child_distance:
-                    minimum_child_distance = child.distancia
-                    next_child = child
-                    self.minimum_distance_next += child.distancia
-            self.minimum_next_path.append(next_child.vertice)
-            self.minimos_sucessivos(next_child)
 
+        #se número de pais = número de vizinhos, fechar ciclo
+        if len(root.parent) == len(root.vertice.vizinhos):
+            for v in root.vertice.vizinhos:
+                if v[0] == origin.vertice:
+                    tree_v = TreeNode(v[0],v[1])
+                    root.add_child(tree_v)
+                    self.minimum_distance_next += v[1]
+                    self.minimum_next_path.append(v[0])
+        #se número de pais != número de vizinhos, continuar a construir árvore
+        else:    
+            queue = []
+            queue.extend(root.vertice.vizinhos)
+            checker = True
+            while queue:
+                u = queue.pop()
+                for parent in root.parent:
+                    if parent.vertice.nome == u[0].nome: #checar se vertice já é pai 
+                        checker = False #se sim não fazer nada
+                if checker: #se não ver se é a menor distância encontrada até o momento
+                    if u[1] < minimum_child_distance:
+                        minimum_child_distance = u[1]
+                        next_child = u[0]
+                checker = True
+            #criar nodo e continuar a árvore mínima usando o vertice com menor distância não inserido encontrado
+            tree_u = TreeNode(next_child,minimum_child_distance)
+            root.add_child(tree_u)
+            self.minimum_tree_distances_list.append(minimum_child_distance)
+            self.minimum_distance_next += minimum_child_distance
+            self.minimum_next_path.append(tree_u.vertice)
+            self.minimos_sucessivos(tree_u,origin)
+
+    #achar pai absoluto (método das arestas)
     def find_parent(self, pos, parent_list):
         if parent_list[pos] == pos:
             return pos
@@ -172,15 +189,16 @@ class Grafo:
     def peso_arestas(self):
         arestas_minimizadas = list()
 
-        parent = list()
+        parent = list() #lista inicial de pais absolutos (pai = ele mesmo)
         for i in range(self.vertices.__len__()):
             parent.append(i)
 
-        i = 0
-        count = 0
-        while count != self.vertices.__len__()-1:
+        i = 0 #percorrer arestas
+        count = 0 #número de arestas inseridas
+        while count != self.vertices.__len__()-1: #número final de arestas = número de vertices - 1
             aresta_atual = self.arestas[i]
 
+            #checar se vertice A ou B na aresta já foi adicionado 2 vezes, se sim pular aresta
             count_1 = 0
             count_2 = 0
             for aresta_min in arestas_minimizadas:
@@ -195,17 +213,18 @@ class Grafo:
                 i += 1
                 continue
 
+            #achar pai absoluto do ponto A e do ponto B
             ponto_a_parent = self.find_parent(aresta_atual.pontoA.id, parent)
             ponto_b_parent = self.find_parent(aresta_atual.pontoB.id, parent)
-
+            
+            #se o pai absoluto for diferente, não fecha ciclo, inserir aresta
             if ponto_a_parent != ponto_b_parent:
                 arestas_minimizadas.append(aresta_atual)
                 count += 1
                 parent[ponto_a_parent] = ponto_b_parent
             i += 1
+            
         return arestas_minimizadas
-
-##incluir distancias
 
 #Desenhar aresta:
 def draw_aresta(color, pt1, pt2, w):
@@ -220,144 +239,40 @@ def draw_ponto(x, y, w):
     cir.draw(w)
 
 #Definir entradas:
-grafo_teste = Grafo()
+grafo = Grafo()
 qtcidades = 10
 cidades = ["Joinville","Florianópolis","Blumenau","São José", "Criciúma", "Chapecó", "Itajaí", "Jaguará", "Lages", "Palhoça"]
-x = [1,2,3,4,5,6,5,5, 3, 2]
-y = [2, 4, 1, 3.5, 1.5, 3.5, 4, 1, 4.3, 3]
-for i in range(0,qtcidades):
+x = [1,1,2.5,4.5,6,6,6,4.5,2.5,1]
+y = [1.5,4,0.5,5,1.5,2.7,4,0.5,5,2.7]
+for i in range(qtcidades):
     draw_ponto(x[i], y[i], window)
     draw_ponto(x[i], y[i], window2)
     draw_ponto(x[i], y[i], window3)
 
-for i in range(0,qtcidades):
-    grafo_teste.add_vertice(Vertice(cidades[i],i,x[i],y[i]))
-    nome_cidade = Text(Point(x[i]*constantex, y[i]*constantey), str(cidades[i])) 
+for i in range(qtcidades):
+    grafo.add_vertice(Vertice(cidades[i],i,x[i],y[i]))
+    nome_cidade = Text(Point(x[i]*constantex, -10+y[i]*constantey), str(cidades[i])) 
     nome_cidade.setSize(20)
     nome_cidade.draw(window)
-    nome_cidade2 = Text(Point(x[i]*constantex, y[i]*constantey), str(cidades[i])) 
+    nome_cidade2 = Text(Point(x[i]*constantex, -10+y[i]*constantey), str(cidades[i])) 
     nome_cidade2.setSize(20)
     nome_cidade2.draw(window2)
-    nome_cidade3 = Text(Point(x[i]*constantex, y[i]*constantey), str(cidades[i])) 
+    nome_cidade3 = Text(Point(x[i]*constantex, -10+y[i]*constantey), str(cidades[i])) 
     nome_cidade3.setSize(20)
     nome_cidade3.draw(window3)
 
-#Joinville
-grafo_teste.add_aresta(0, 1, 186) 
-grafo_teste.add_aresta(0, 2, 104) 
-grafo_teste.add_aresta(0, 3, 176)
-grafo_teste.add_aresta(0, 4, 366)
-grafo_teste.add_aresta(0, 5, 512)
-grafo_teste.add_aresta(0, 6, 92)
-grafo_teste.add_aresta(0, 7, 53)
-grafo_teste.add_aresta(0, 8, 312)
-grafo_teste.add_aresta(0, 9, 182)
+distancias = [[0,186,104,176,366,512,92,53,312,182],[186,0,152,16,207,556,99,190,229,22],[104,152,0,146,337,477,62,65,223,153],
+[176,16,146,0,192,541,91,182,214,9],[366,207,337,192,0,532,281,371,204,185],[512,556,477,541,532,0,530,487,331,534],
+[92,99,62,91,281,530,0,97,303,96],[53,190,65,182,371,487,97,0,262,186],[312,229,223,214,204,331,303,262,0,207],
+[182,22,153,9,185,534,96,186,207,0]]
+for i in range(qtcidades):
+    for j in range(qtcidades):
+        if i != j:
+            grafo.add_aresta(i,j,distancias[i][j])
 
-#Florianópolis
-grafo_teste.add_aresta(1, 0, 186)
-grafo_teste.add_aresta(1, 2, 152)
-grafo_teste.add_aresta(1, 3, 16)
-grafo_teste.add_aresta(1, 4, 207)
-grafo_teste.add_aresta(1, 5, 556)
-grafo_teste.add_aresta(1, 6, 99)
-grafo_teste.add_aresta(1, 7, 190)
-grafo_teste.add_aresta(1, 8, 229)
-grafo_teste.add_aresta(1, 9, 22)
-
-
-#Blumenau
-grafo_teste.add_aresta(2, 0, 104)
-grafo_teste.add_aresta(2, 1, 152)
-grafo_teste.add_aresta(2, 3, 146)
-grafo_teste.add_aresta(2, 4, 337)
-grafo_teste.add_aresta(2, 5, 477)
-grafo_teste.add_aresta(2, 6, 62)
-grafo_teste.add_aresta(2, 7, 65)
-grafo_teste.add_aresta(2, 8, 223)
-grafo_teste.add_aresta(2, 9, 153)
-
-#São José
-grafo_teste.add_aresta(3, 0, 176)
-grafo_teste.add_aresta(3, 1, 16)
-grafo_teste.add_aresta(3, 2, 146)
-grafo_teste.add_aresta(3, 4, 192)
-grafo_teste.add_aresta(3, 5, 541)
-grafo_teste.add_aresta(3, 6, 91)
-grafo_teste.add_aresta(3, 7, 182)
-grafo_teste.add_aresta(3, 8, 214)
-grafo_teste.add_aresta(3, 9, 9)
-
-#Criciúma
-grafo_teste.add_aresta(4, 0, 366)
-grafo_teste.add_aresta(4, 1, 207)
-grafo_teste.add_aresta(4, 2, 337)
-grafo_teste.add_aresta(4, 3, 192)
-grafo_teste.add_aresta(4, 5, 532)
-grafo_teste.add_aresta(4, 6, 281)
-grafo_teste.add_aresta(4, 7, 371)
-grafo_teste.add_aresta(4, 8, 204)
-grafo_teste.add_aresta(4, 9, 185)
-
-#Chapecó
-grafo_teste.add_aresta(5, 0, 512)
-grafo_teste.add_aresta(5, 1, 556)
-grafo_teste.add_aresta(5, 2, 477)
-grafo_teste.add_aresta(5, 3, 541)
-grafo_teste.add_aresta(5, 4, 532)
-grafo_teste.add_aresta(5, 6, 530)
-grafo_teste.add_aresta(5, 7, 487)
-grafo_teste.add_aresta(5, 8, 331)
-grafo_teste.add_aresta(5, 9, 534)
-
-#Itajaí
-grafo_teste.add_aresta(6, 0, 92)
-grafo_teste.add_aresta(6, 1, 99)
-grafo_teste.add_aresta(6, 2, 62)
-grafo_teste.add_aresta(6, 3, 91)
-grafo_teste.add_aresta(6, 4, 281)
-grafo_teste.add_aresta(6, 5, 530)
-grafo_teste.add_aresta(6, 7, 97)
-grafo_teste.add_aresta(6, 8, 303)
-grafo_teste.add_aresta(6, 9, 96)
-
-#Jaguará
-grafo_teste.add_aresta(7, 0, 53)
-grafo_teste.add_aresta(7, 1, 190)
-grafo_teste.add_aresta(7, 2, 65)
-grafo_teste.add_aresta(7, 3, 182)
-grafo_teste.add_aresta(7, 4, 371)
-grafo_teste.add_aresta(7, 5, 487)
-grafo_teste.add_aresta(7, 6, 97)
-grafo_teste.add_aresta(7, 8, 262)
-grafo_teste.add_aresta(7, 9, 186)
-
-#Lages
-grafo_teste.add_aresta(8, 0, 312)
-grafo_teste.add_aresta(8, 1, 229)
-grafo_teste.add_aresta(8, 2, 223)
-grafo_teste.add_aresta(8, 3, 214)
-grafo_teste.add_aresta(8, 4, 204)
-grafo_teste.add_aresta(8, 5, 331)
-grafo_teste.add_aresta(8, 6, 303)
-grafo_teste.add_aresta(8, 7, 262)
-grafo_teste.add_aresta(8, 9, 207)
-
-#Palhoça
-grafo_teste.add_aresta(9, 0, 182)
-grafo_teste.add_aresta(9, 1, 22)
-grafo_teste.add_aresta(9, 2, 153)
-grafo_teste.add_aresta(9, 3, 9)
-grafo_teste.add_aresta(9, 4, 185)
-grafo_teste.add_aresta(9, 5, 534)
-grafo_teste.add_aresta(9, 6, 96)
-grafo_teste.add_aresta(9, 7, 186)
-grafo_teste.add_aresta(9, 8, 207)
-
-
-for i in range(0,qtcidades):
+for i in range(qtcidades):
     for j in range(i,qtcidades):
         if i != j:
-            print(str(j) + str(i))
             verticea = Vertice(cidades[i],i,x[i],y[i])
             pt1 = Point(verticea.x*constantex, verticea.y*constantey) 
             verticeb = Vertice(cidades[j],j,x[j],y[j])
@@ -367,85 +282,136 @@ for i in range(0,qtcidades):
             draw_aresta("black", pt1, pt2, window3)         
 
 
-for v in grafo_teste.vertices:
-    if v.id == 0:
-        root = grafo_teste.criar_arvore(v)
-
-
 #MÉTODO DAS ÁRVORES
 
-grafo_teste.construir_arvore(root)
-grafo_teste.fechar_ciclo(root, root)
-root.print_tree()
-aux = grafo_teste.caminho_minimo_arvore(root, 0, [], root)
-
-for v in grafo_teste.vertices:
-    if v.id == 0:
-        grafo_teste.minimum_tree_path.insert(0,v)
-
+root = grafo.criar_arvore(grafo.vertices[0]) #criar árvore saindo de joinville
+grafo.construir_arvore(root, root) #constrói árvore
+aux = grafo.caminho_minimo_arvore(root, 0, [],[], root) #calcula distância mínima (e caminho)
+grafo.minimum_tree_path.insert(0,root.vertice) #insere cidade inicial
 print("")
 print("********Algoritmo das Árvores***********")
 print("****************************************")
 print("Caminho escolhido:")
-lista = list()
-for vertice in grafo_teste.minimum_tree_path:
-    print(vertice.nome)
-    lista.append(vertice)
-    print()
+aux1=0
+rotatree_text = Text(Point(750, 170),"Rota:")
+rotatree_text.setSize(15)
+rotatree_text.setTextColor("black")
+rotatree_text.draw(window)
+for i in range(len(grafo.minimum_tree_path)):
+    print(str(i+1) + ": " + grafo.minimum_tree_path[i].nome)
+    cidadetree_text = Text(Point(750, 200+aux1), str(grafo.minimum_tree_path[i].nome))
+    cidadetree_text.setSize(15)
+    cidadetree_text.setTextColor("red")
+    cidadetree_text.draw(window) 
+    aux1=aux1+20
+distanciattree_text = Text(Point(750, 430), "Distância: " + str(aux))
+distanciattree_text.setSize(15)
+distanciattree_text.setTextColor("black")
+distanciattree_text.draw(window)
+
 print("Distancia: " + str(aux))
 print("****************************************")
-for i in range(0,qtcidades):
-        pt_1 = Point(lista[i].x*constantex, lista[i].y*constantey)
-        pt_2 = Point(lista[i+1].x*constantex, lista[i+1].y*constantey)
+for i in range(qtcidades):
+        pt_1 = Point(grafo.minimum_tree_path[i].x*constantex, grafo.minimum_tree_path[i].y*constantey)
+        pt_2 = Point(grafo.minimum_tree_path[i+1].x*constantex, grafo.minimum_tree_path[i+1].y*constantey)
         draw_aresta("red", pt_1, pt_2, window)
+        d_aux = grafo.minimum_tree_path[i].x- grafo.minimum_tree_path[i+1].x
+        if d_aux < 0 :
+            d_aux=d_aux*-1
+            d_aux = grafo.minimum_tree_path[i].x+(d_aux/2)
+        else:
+            d_aux = grafo.minimum_tree_path[i+1].x+(d_aux/2)
+        dxpt3 = d_aux
+
+        d_aux = grafo.minimum_tree_path[i].y- grafo.minimum_tree_path[i+1].y
+        if d_aux < 0 :
+            d_aux=d_aux*-1
+            d_aux = grafo.minimum_tree_path[i].y+(d_aux/2)
+        else:
+            d_aux = grafo.minimum_tree_path[i+1].y+(d_aux/2)
+        dypt3 = d_aux   
+        dpt3_a = Point(dxpt3*constantex, -10+dypt3*constantey)
+        distanciatree_text = Text(dpt3_a, str(grafo.minimum_tree_distances_list[i]))
+        distanciatree_text.setSize(15)
+        distanciatree_text.setTextColor("red")
+        distanciatree_text.draw(window) 
 
 #MÉTODO DOS MÍNIMOS SUCESSIVOS:
 
 print("----------")
 min_next_dist = 999999
 min_next_path = []
-for vertice in grafo_teste.vertices:
-    teste_min_suc = grafo_teste.criar_arvore(vertice)
-    grafo_teste.construir_arvore(teste_min_suc)
-    grafo_teste.fechar_ciclo(teste_min_suc, teste_min_suc)
-    grafo_teste.minimum_next_path = []
-    grafo_teste.minimum_distance_next = 0
-    grafo_teste.minimos_sucessivos(teste_min_suc)
-    if min_next_dist > grafo_teste.minimum_distance_next:
+for vertice in grafo.vertices: #testar partindo de todas as cidades
+    teste_min_suc = grafo.criar_arvore(vertice) #cria arvore
+    grafo.minimum_next_path = [] #zera caminho minimo interno
+    grafo.minimum_distance_next = 0 #zera distancia minima interna
+    grafo.minimum_next_path.append(teste_min_suc.vertice) #add vertice de partida
+    grafo.minimos_sucessivos(teste_min_suc, teste_min_suc) #calcula caminho e dist minima saindo do vertice
+    if min_next_dist > grafo.minimum_distance_next: #se caminho menor então caminho é o novo caminho minimo
         min_next_path = []
-        min_next_path.append(vertice)
-        min_next_dist = grafo_teste.minimum_distance_next
-        min_next_path.extend(grafo_teste.minimum_next_path)
+        min_next_dist = grafo.minimum_distance_next
+        min_next_path.extend(grafo.minimum_next_path)
 
-
-lista_minimos_x = list()
-lista_minimos_y = list()
 print("")
 print("****Algoritmo das minimos sucessivos****")
 print("****************************************")
 print("Caminho escolhido:")
-for vertice in min_next_path:
-    print(vertice.nome)
-    lista_minimos_x.append(vertice.x)
-    lista_minimos_y.append(vertice.y)
-    
-for i in range(0,qtcidades):
-    pt1_m = Point(lista_minimos_x[i]*constantex, lista_minimos_y[i]*constantey)
-    pt2_m = Point(lista_minimos_x[i+1]*constantex, lista_minimos_y[i+1]*constantey)
-    draw_aresta("yellow", pt1_m, pt2_m, window2)
-  
-print("Distância: "+str(grafo_teste.minimum_distance_next))
+
+
+saux=0
+srota_text = Text(Point(750, 170),"Rota:")
+srota_text.setSize(15)
+srota_text.setTextColor("black")
+srota_text.draw(window2)
+for i in range(len(min_next_path)):
+    print(str(i) + ": " + min_next_path[i].nome)
+    scidade_text = Text(Point(750, 200+saux),min_next_path[i].nome)
+    scidade_text.setSize(15)
+    scidade_text.setTextColor("red")
+    scidade_text.draw(window2) 
+    saux=saux+20
+
+for i in range(qtcidades):
+    pt1_m = Point(min_next_path[i].x*constantex, min_next_path[i].y*constantey)
+    pt2_m = Point(min_next_path[i+1].x*constantex, min_next_path[i+1].y*constantey)
+    draw_aresta("red", pt1_m, pt2_m, window2)
+    print(min_next_path[i].vizinhos[1][1])
+    s_aux = min_next_path[i].x- min_next_path[i+1].x
+    if s_aux < 0 :
+        s_aux=s_aux*-1
+        s_aux = min_next_path[i].x+(s_aux/2)
+    else:
+        s_aux = min_next_path[i+1].x+(s_aux/2)
+    sxpt3 = s_aux
+
+    s_aux = min_next_path[i].y- min_next_path[i+1].y
+    if s_aux < 0 :
+        s_aux=s_aux*-1
+        s_aux = min_next_path[i].y+(s_aux/2)
+    else:
+        s_aux = min_next_path[i+1].y+(s_aux/2)
+    sypt3 = s_aux   
+    spt3_a = Point(sxpt3*constantex, -10+sypt3*constantey)
+    distancias_text = Text(spt3_a, str(min_next_path[i].vizinhos[1][1]))
+    distancias_text.setSize(15)
+    distancias_text.setTextColor("red")
+    distancias_text.draw(window2) 
+sdistancia_text = Text(Point(750, 430),"Distância:"+ str(min_next_dist)+"km")
+sdistancia_text.setSize(15)
+sdistancia_text.setTextColor("black")
+sdistancia_text.draw(window2)
+print("Distância: " + str(min_next_dist))
 print("--------------")
 print("****************************************")
 
-
 #MÉTODO DA ORDENAÇÃO DE PESOS DAS ARESTAS
-grafo_teste.sort_aresta_peso()
-arestas_minimizadas = grafo_teste.peso_arestas()
+grafo.sort_aresta_peso()
+arestas_minimizadas = grafo.peso_arestas()
 
+#achar vertices inseridos apenas uma vez e inserir aresta entre eles (fechar ciclo)
 vertice_1 = Vertice("",0,0,0)
 vertice_2 = Vertice("",0,0,0)
-for vertice in grafo_teste.vertices:
+for vertice in grafo.vertices:
     count_1 = 0
     for aresta in arestas_minimizadas:
         if vertice == aresta.pontoA or vertice == aresta.pontoB:
@@ -453,7 +419,7 @@ for vertice in grafo_teste.vertices:
     if count_1 == 1:
         vertice_1 = vertice
 
-for vertice in grafo_teste.vertices:
+for vertice in grafo.vertices:
     count_2 = 0
     for aresta in arestas_minimizadas:
         if vertice != vertice_1:
@@ -462,21 +428,76 @@ for vertice in grafo_teste.vertices:
     if count_2 == 1:
         vertice_2 = vertice
 
-for aresta in grafo_teste.arestas:
+for aresta in grafo.arestas:
     if aresta.pontoA == vertice_1 and aresta.pontoB == vertice_2:
         arestas_minimizadas.append(aresta)
     elif aresta.pontoB == vertice_1 and aresta.pontoA == vertice_2:
         arestas_minimizadas.append(aresta)
 
 print("")
-print("****Algoritmo de ordenação de arestas***")
+print("***Algoritmo de ordenação das arestas***")
 print("****************************************")
 print("Caminho escolhido:")
 for aresta in arestas_minimizadas:
-    print(str(aresta.pontoA.nome) + "," + str(aresta.pontoB.nome) + ":" + str(aresta.peso))
     pt1_a = Point(aresta.pontoA.x*constantex, aresta.pontoA.y*constantey)
     pt2_a = Point(aresta.pontoB.x*constantex, aresta.pontoB.y*constantey)
-    draw_aresta("green", pt1_a,pt2_a , window3)
+    draw_aresta("red", pt1_a,pt2_a , window3)
+    aux = aresta.pontoA.x- aresta.pontoB.x
+    if aux < 0 :
+        aux=aux*-1
+        aux = aresta.pontoA.x+(aux/2)
+    else:
+        aux = aresta.pontoB.x+(aux/2)
+    xpt3 = aux
+
+    aux = aresta.pontoA.y- aresta.pontoB.y
+    if aux < 0 :
+        aux=aux*-1
+        aux = aresta.pontoA.y+(aux/2)
+    else:
+        aux = aresta.pontoB.y+(aux/2)
+    ypt3 = aux   
+    pt3_a = Point(xpt3*constantex, -10+ypt3*constantey)
+    distancia_text = Text(pt3_a, str(aresta.peso))
+    distancia_text.setSize(15)
+    distancia_text.setTextColor("red")
+    distancia_text.draw(window3) 
+    print(aresta.peso)
+
+distancia = 0
+for aresta in arestas_minimizadas:
+    distancia += aresta.peso
+
+minimum_aresta_path = list()
+minimum_aresta_path.append(arestas_minimizadas[0].pontoA)
+minimum_aresta_path.append(arestas_minimizadas[0].pontoB)
+for i in range(1,11):
+    for j in range(1,len(arestas_minimizadas)):
+        if arestas_minimizadas[j].pontoA == minimum_aresta_path[i]:
+            minimum_aresta_path.append(arestas_minimizadas[j].pontoB)
+            arestas_minimizadas.remove(arestas_minimizadas[j])
+            break
+        elif arestas_minimizadas[j].pontoB == minimum_aresta_path[i]:
+            minimum_aresta_path.append(arestas_minimizadas[j].pontoA)
+            arestas_minimizadas.remove(arestas_minimizadas[j])
+            break
+aux=0
+rota_text = Text(Point(750, 170),"Rota:")
+rota_text.setSize(15)
+rota_text.setTextColor("black")
+rota_text.draw(window3)
+for i in range(len(minimum_aresta_path)):
+    print(str(i) + ": " + minimum_aresta_path[i].nome)
+    cidade_text = Text(Point(750, 200+aux), minimum_aresta_path[i].nome)
+    cidade_text.setSize(15)
+    cidade_text.setTextColor("red")
+    cidade_text.draw(window3) 
+    aux=aux+20
+distancia_text = Text(Point(750, 430),"Distância:"+ str(distancia)+"km")
+distancia_text.setSize(15)
+distancia_text.setTextColor("black")
+distancia_text.draw(window3)
+print("Distância: " + str(distancia))
 print("****************************************")
 
 window.getMouse()
