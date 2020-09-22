@@ -52,33 +52,36 @@ void OrdemPesos::get_shortest_path(Node initial_node) {
             }
         }
     }
-    //std::cout << "Graus" << std::endl;
-    //for (auto i = this->graus.begin(); i != this->graus.end(); i++) {
-    //    std::cout << "Node: " << i->first << " ";
-    //    std::cout << i->second.grau_entrada + i->second.grau_saida;
-    //    std::cout << std::endl;
-    //}
-    //
-    //std::cout << "Used Edges" << std::endl;
-    //for (size_t i = 0; i < used_edges.size(); i++) {
-    //    std::cout << "Edge: " << this->edges[used_edges[i]].origin << " " << this->edges[used_edges[i]].destiny << std::endl;
-    //}
+    // std::cout << "Graus" << std::endl;
+    // for (auto i = this->graus.begin(); i != this->graus.end(); i++) {
+    //     std::cout << "Node: " << i->first << " ";
+    //     std::cout << i->second.grau_entrada + i->second.grau_saida;
+    //     std::cout << std::endl;
+    // }
+    // 
+    // std::cout << "Used Edges" << std::endl;
+    // for (size_t i = 0; i < used_edges.size(); i++) {
+    //     std::cout << "Edge: " << this->edges[used_edges[i]].origin << " " << this->edges[used_edges[i]].destiny << std::endl;
+    // }
 
     // Montar path
     Node actual_node{initial_node};
     this->path.push_back(actual_node);
-    std::vector<int> node_visited = std::vector<int>();
+    std::vector<int> edge_visited = std::vector<int>();
+    //std::cout << "Path Build" << std::endl;
     while (this->path.size() - 1 < this->graph.get_nodes().size()) {
         for (size_t i = 0; i < used_edges.size(); i++) {
-            if (this->edges[used_edges[i]].origin == actual_node.get_id() && !(std::find(node_visited.begin(), node_visited.end(), this->edges[used_edges[i]].destiny) != node_visited.end())) {
+            if (this->edges[used_edges[i]].origin == actual_node.get_id() && !(std::find(edge_visited.begin(), edge_visited.end(), used_edges[i]) != edge_visited.end())) {
+                //std::cout << "Edge Choosen: " << this->edges[used_edges[i]].origin << " " << this->edges[used_edges[i]].destiny << std::endl;
                 actual_node = this->graph.get_node_by_id(this->edges[used_edges[i]].destiny);
-                node_visited.push_back(actual_node.get_id());
+                edge_visited.push_back(used_edges[i]);
 
                 path.push_back(actual_node);
                 break;
-            } else if (this->edges[used_edges[i]].destiny == actual_node.get_id() && !(std::find(node_visited.begin(), node_visited.end(), this->edges[used_edges[i]].origin) != node_visited.end())) {
+            } else if (this->edges[used_edges[i]].destiny == actual_node.get_id() && !(std::find(edge_visited.begin(), edge_visited.end(), used_edges[i]) != edge_visited.end())) {
+                //std::cout << "Edge Choosen: " << this->edges[used_edges[i]].origin << " " << this->edges[used_edges[i]].destiny << std::endl;
                 actual_node = this->graph.get_node_by_id(this->edges[used_edges[i]].origin);
-                node_visited.push_back(actual_node.get_id());
+                edge_visited.push_back(used_edges[i]);
 
                 path.push_back(actual_node);
                 break;
