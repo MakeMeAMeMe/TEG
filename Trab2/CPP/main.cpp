@@ -41,30 +41,21 @@ int main() {
         }
     }
     // Ordenacao de pesos
-    for (size_t i = 0; i < GRAPHSIZE; i++) {
-        OrdemPesos ordem{graph};
-        // pick the shortest_path of each initial node
-        ordem.get_shortest_path(graph.get_node(i));
-        ordem.print_path();
-    }
+    OrdemPesos ordem{graph};
+    ordem.get_shortest_path(graph.get_node(0));
+    ordem.print_path();
 
     // Minimos sucessivos
 
     Min min{0, {}, graph};
-    for (size_t i = 0; i < GRAPHSIZE; i++) {
-        // pick the shortest_path of each initial node
-        min.get_shortest_path(graph.get_nodes(), {}, graph.get_node(i), graph.get_node(i), 0);
-    }
+    min.get_shortest_path(graph.get_nodes(), {}, graph.get_node(0), graph.get_node(0), 0);
 
     min.print_path();
 
     // Construcao de arvores
 
     Path path{0, {}, graph};
-    for (size_t i = 0; i < GRAPHSIZE; i++) {
-        // pick the shortest_path of each initial node
-        path.get_shortest_path(graph.get_nodes(), {}, graph.get_node(i), graph.get_node(i), 0);
-    }
+    path.get_shortest_path(graph.get_nodes(), {}, graph.get_node(0), graph.get_node(0), 0);
 
     path.print_path();
 

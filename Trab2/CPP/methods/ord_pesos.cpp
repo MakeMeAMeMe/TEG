@@ -38,10 +38,11 @@ void OrdemPesos::get_shortest_path(Node initial_node) {
                     break;
                 }
             }
+
             if (is_done) {
+                this->distance += this->edges[i].distance;
                 break;
             }
-
             if (!this->have_cicle(used_edges, this->edges[i].origin, visited_nodes, visited_edges)) {
                 this->distance += this->edges[i].distance;
             } else {
