@@ -315,12 +315,12 @@ distancias_text.setSize(13)
 distancias_text.setTextColor("red")
 distancias_text.draw(window)
 
-distanciattree_text = Text(Point(750, 530), "Distância: " + str(aux))
+distanciattree_text = Text(Point(750, 530), "Distância: " + str(aux)+ "km")
 distanciattree_text.setSize(15)
 distanciattree_text.setTextColor("black")
 distanciattree_text.draw(window)
 
-print("Distancia: " + str(aux))
+print("Distancia: " + str(aux) + " km")
 print("****************************************")
 for i in range(qtcidades):
         pt_1 = Point(grafo.minimum_tree_path[i].x*constantex, grafo.minimum_tree_path[i].y*constantey)
@@ -358,8 +358,6 @@ list_min_sc_dist = list()
 for i in range(qtcidades):    
     for vizinho in min_next_path[i].vizinhos:
         if min_next_path[i+1] == vizinho[0]:
-            print(vizinho[0].nome)
-            print(vizinho[1])
             list_min_sc_dist.append(vizinho[1])
 for i in range(qtcidades):
     print(str(i) + ": " + min_next_path[i].nome)
@@ -389,7 +387,7 @@ sdistancia_text.setSize(15)
 sdistancia_text.setTextColor("black")
 sdistancia_text.draw(window2)
 
-print("Distância: " + str(min_next_dist))
+print("Distância: " + str(min_next_dist) + " km")
 print("--------------")
 print("****************************************")
 
@@ -472,13 +470,13 @@ for i in range(qtcidades):
 distancias_text = Text(Point(750, 100+saux),minimum_aresta_path[0].nome)
 distancias_text.setSize(13)
 distancias_text.setTextColor("red")
-distancias_text.draw(window2)
+distancias_text.draw(window3)
 
 distancia_text = Text(Point(750, 530),"Distância:"+ str(distancia)+"km")
 distancia_text.setSize(15)
 distancia_text.setTextColor("black")
 distancia_text.draw(window3)
-print("Distância: " + str(distancia))
+print("Distância: " + str(distancia) + " km")
 print("****************************************")
 
 window.getMouse()
