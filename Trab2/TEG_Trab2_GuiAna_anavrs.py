@@ -293,18 +293,29 @@ print("********Algoritmo das Árvores***********")
 print("****************************************")
 print("Caminho escolhido:")
 aux1=0
-rotatree_text = Text(Point(750, 170),"Rota:")
+rotatree_text = Text(Point(750, 80),"Rota:")
 rotatree_text.setSize(15)
 rotatree_text.setTextColor("black")
 rotatree_text.draw(window)
-for i in range(len(grafo.minimum_tree_path)):
+for i in range(qtcidades):
     print(str(i+1) + ": " + grafo.minimum_tree_path[i].nome)
-    cidadetree_text = Text(Point(750, 200+aux1), str(grafo.minimum_tree_path[i].nome))
-    cidadetree_text.setSize(15)
+    cidadetree_text = Text(Point(750, 100+aux1), str(grafo.minimum_tree_path[i].nome))
+    cidadetree_text.setSize(13)
     cidadetree_text.setTextColor("red")
     cidadetree_text.draw(window) 
     aux1=aux1+20
-distanciattree_text = Text(Point(750, 430), "Distância: " + str(aux))
+    distancias_text = Text(Point(750, 100+aux1), str(grafo.minimum_tree_distances_list[i])+"km")
+    distancias_text.setSize(13)
+    distancias_text.setTextColor("black")
+    distancias_text.draw(window) 
+    aux1=aux1+20
+
+distancias_text = Text(Point(750, 100+aux1),grafo.minimum_tree_path[0].nome)
+distancias_text.setSize(13)
+distancias_text.setTextColor("red")
+distancias_text.draw(window)
+
+distanciattree_text = Text(Point(750, 530), "Distância: " + str(aux))
 distanciattree_text.setSize(15)
 distanciattree_text.setTextColor("black")
 distanciattree_text.draw(window)
@@ -315,26 +326,6 @@ for i in range(qtcidades):
         pt_1 = Point(grafo.minimum_tree_path[i].x*constantex, grafo.minimum_tree_path[i].y*constantey)
         pt_2 = Point(grafo.minimum_tree_path[i+1].x*constantex, grafo.minimum_tree_path[i+1].y*constantey)
         draw_aresta("red", pt_1, pt_2, window)
-        d_aux = grafo.minimum_tree_path[i].x- grafo.minimum_tree_path[i+1].x
-        if d_aux < 0 :
-            d_aux=d_aux*-1
-            d_aux = grafo.minimum_tree_path[i].x+(d_aux/2)
-        else:
-            d_aux = grafo.minimum_tree_path[i+1].x+(d_aux/2)
-        dxpt3 = d_aux
-
-        d_aux = grafo.minimum_tree_path[i].y- grafo.minimum_tree_path[i+1].y
-        if d_aux < 0 :
-            d_aux=d_aux*-1
-            d_aux = grafo.minimum_tree_path[i].y+(d_aux/2)
-        else:
-            d_aux = grafo.minimum_tree_path[i+1].y+(d_aux/2)
-        dypt3 = d_aux   
-        dpt3_a = Point(dxpt3*constantex, -10+dypt3*constantey)
-        distanciatree_text = Text(dpt3_a, str(grafo.minimum_tree_distances_list[i]))
-        distanciatree_text.setSize(15)
-        distanciatree_text.setTextColor("red")
-        distanciatree_text.draw(window) 
 
 #MÉTODO DOS MÍNIMOS SUCESSIVOS:
 
@@ -359,47 +350,45 @@ print("Caminho escolhido:")
 
 
 saux=0
-srota_text = Text(Point(750, 170),"Rota:")
+srota_text = Text(Point(750, 80),"Rota:")
 srota_text.setSize(15)
 srota_text.setTextColor("black")
 srota_text.draw(window2)
-for i in range(len(min_next_path)):
+list_min_sc_dist = list()   
+for i in range(qtcidades):    
+    for vizinho in min_next_path[i].vizinhos:
+        if min_next_path[i+1] == vizinho[0]:
+            print(vizinho[0].nome)
+            print(vizinho[1])
+            list_min_sc_dist.append(vizinho[1])
+for i in range(qtcidades):
     print(str(i) + ": " + min_next_path[i].nome)
-    scidade_text = Text(Point(750, 200+saux),min_next_path[i].nome)
-    scidade_text.setSize(15)
+    scidade_text = Text(Point(750, 100+saux),min_next_path[i].nome)
+    scidade_text.setSize(13)
     scidade_text.setTextColor("red")
-    scidade_text.draw(window2) 
+    scidade_text.draw(window2)
     saux=saux+20
+    distancias_text = Text(Point(750, 100+saux), str(list_min_sc_dist[i])+"km")
+    distancias_text.setSize(13)
+    distancias_text.setTextColor("black")
+    distancias_text.draw(window2) 
+    saux=saux+20
+
+distancias_text = Text(Point(750, 100+saux),min_next_path[0].nome)
+distancias_text.setSize(13)
+distancias_text.setTextColor("red")
+distancias_text.draw(window2)
 
 for i in range(qtcidades):
     pt1_m = Point(min_next_path[i].x*constantex, min_next_path[i].y*constantey)
     pt2_m = Point(min_next_path[i+1].x*constantex, min_next_path[i+1].y*constantey)
     draw_aresta("red", pt1_m, pt2_m, window2)
-    print(min_next_path[i].vizinhos[1][1])
-    s_aux = min_next_path[i].x- min_next_path[i+1].x
-    if s_aux < 0 :
-        s_aux=s_aux*-1
-        s_aux = min_next_path[i].x+(s_aux/2)
-    else:
-        s_aux = min_next_path[i+1].x+(s_aux/2)
-    sxpt3 = s_aux
 
-    s_aux = min_next_path[i].y- min_next_path[i+1].y
-    if s_aux < 0 :
-        s_aux=s_aux*-1
-        s_aux = min_next_path[i].y+(s_aux/2)
-    else:
-        s_aux = min_next_path[i+1].y+(s_aux/2)
-    sypt3 = s_aux   
-    spt3_a = Point(sxpt3*constantex, -10+sypt3*constantey)
-    distancias_text = Text(spt3_a, str(min_next_path[i].vizinhos[1][1]))
-    distancias_text.setSize(15)
-    distancias_text.setTextColor("red")
-    distancias_text.draw(window2) 
-sdistancia_text = Text(Point(750, 430),"Distância:"+ str(min_next_dist)+"km")
+sdistancia_text = Text(Point(750, 530),"Distância:"+ str(min_next_dist)+"km")
 sdistancia_text.setSize(15)
 sdistancia_text.setTextColor("black")
 sdistancia_text.draw(window2)
+
 print("Distância: " + str(min_next_dist))
 print("--------------")
 print("****************************************")
@@ -438,31 +427,12 @@ print("")
 print("***Algoritmo de ordenação das arestas***")
 print("****************************************")
 print("Caminho escolhido:")
+listaux = list()
 for aresta in arestas_minimizadas:
     pt1_a = Point(aresta.pontoA.x*constantex, aresta.pontoA.y*constantey)
     pt2_a = Point(aresta.pontoB.x*constantex, aresta.pontoB.y*constantey)
-    draw_aresta("red", pt1_a,pt2_a , window3)
-    aux = aresta.pontoA.x- aresta.pontoB.x
-    if aux < 0 :
-        aux=aux*-1
-        aux = aresta.pontoA.x+(aux/2)
-    else:
-        aux = aresta.pontoB.x+(aux/2)
-    xpt3 = aux
-
-    aux = aresta.pontoA.y- aresta.pontoB.y
-    if aux < 0 :
-        aux=aux*-1
-        aux = aresta.pontoA.y+(aux/2)
-    else:
-        aux = aresta.pontoB.y+(aux/2)
-    ypt3 = aux   
-    pt3_a = Point(xpt3*constantex, -10+ypt3*constantey)
-    distancia_text = Text(pt3_a, str(aresta.peso))
-    distancia_text.setSize(15)
-    distancia_text.setTextColor("red")
-    distancia_text.draw(window3) 
-    print(aresta.peso)
+    draw_aresta("red", pt1_a,pt2_a , window3) 
+    listaux.append(aresta.peso)
 
 distancia = 0
 for aresta in arestas_minimizadas:
@@ -482,18 +452,29 @@ for i in range(1,11):
             arestas_minimizadas.remove(arestas_minimizadas[j])
             break
 aux=0
-rota_text = Text(Point(750, 170),"Rota:")
+rota_text = Text(Point(750, 80),"Rota:")
 rota_text.setSize(15)
 rota_text.setTextColor("black")
 rota_text.draw(window3)
-for i in range(len(minimum_aresta_path)):
+for i in range(qtcidades):
     print(str(i) + ": " + minimum_aresta_path[i].nome)
-    cidade_text = Text(Point(750, 200+aux), minimum_aresta_path[i].nome)
-    cidade_text.setSize(15)
+    cidade_text = Text(Point(750, 100+aux), minimum_aresta_path[i].nome)
+    cidade_text.setSize(13)
     cidade_text.setTextColor("red")
     cidade_text.draw(window3) 
     aux=aux+20
-distancia_text = Text(Point(750, 430),"Distância:"+ str(distancia)+"km")
+    distancias_text = Text(Point(750, 100+aux), str(listaux[i])+"km")
+    distancias_text.setSize(13)
+    distancias_text.setTextColor("black")
+    distancias_text.draw(window3) 
+    aux=aux+20
+
+distancias_text = Text(Point(750, 100+saux),minimum_aresta_path[0].nome)
+distancias_text.setSize(13)
+distancias_text.setTextColor("red")
+distancias_text.draw(window2)
+
+distancia_text = Text(Point(750, 530),"Distância:"+ str(distancia)+"km")
 distancia_text.setSize(15)
 distancia_text.setTextColor("black")
 distancia_text.draw(window3)
